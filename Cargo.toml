@@ -1,0 +1,7 @@
+[package]
+name = "asm6502"
+version = "0.1.0"
+authors = ["W. Brian Gourlie <bgourlie@gmail.com>"]
+
+[dependencies]
+nom = "^2.0"
