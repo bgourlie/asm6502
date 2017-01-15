@@ -6,7 +6,7 @@ mod parse_tests;
 #[macro_use]
 extern crate nom;
 
-use nom::{ErrorKind, IResult};
+use nom::{ErrorKind, IResult, space};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Mnemonic {
@@ -93,6 +93,14 @@ pub enum AddressingMode {
 #[derive(Debug, PartialEq, Eq)]
 pub struct OpCode(Mnemonic, AddressingMode);
 
+named!(opcode <OpCode>, do_parse!(
+        mnemonic: mnemonic >>
+        space >>
+        am: addressing_mode >>
+        (OpCode(mnemonic, am))
+    )
+);
+
 named!(mnemonic <Mnemonic>, alt!(
         tag!("ADC") => { |_| Mnemonic::ADC } |
         tag!("AND") => { |_| Mnemonic::AND } |
@@ -154,12 +162,12 @@ named!(mnemonic <Mnemonic>, alt!(
     );
 
 named!(addressing_mode <AddressingMode>,
-    alt!(
+    alt_complete!(
         am_accumulator |
         am_immediate |
+        am_indirect |
         am_indexed_indirect |
         am_indirect_indexed |
-        am_indirect |
         am_zp_x |
         am_zp_y |
         am_zp_or_relative |
@@ -172,6 +180,7 @@ named!(addressing_mode <AddressingMode>,
 named!(am_indirect <AddressingMode>,
     do_parse!(
         word: delimited!(tag!("("), alt!(parse_word_hex | dec_u16), tag!(")")) >>
+        not!(tag!(",")) >>
         (AddressingMode::Indirect(word))
     )
 );
@@ -331,7 +340,6 @@ pub fn dec_u16(input: &[u8]) -> IResult<&[u8], u16> {
 }
 
 pub fn dec_u8(input: &[u8]) -> IResult<&[u8], u8> {
-    println!();
     match is_a!(input, &b"0123456789"[..]) {
         IResult::Error(e) => IResult::Error(e),
         IResult::Incomplete(e) => IResult::Incomplete(e),
@@ -356,7 +364,7 @@ pub fn dec_u8(input: &[u8]) -> IResult<&[u8], u8> {
     }
 }
 
-pub fn hex_u8(input: &[u8]) -> IResult<&[u8], u8> {
+fn hex_u8(input: &[u8]) -> IResult<&[u8], u8> {
     match is_a!(input, &b"0123456789abcdef"[..]) {
         IResult::Error(e) => IResult::Error(e),
         IResult::Incomplete(e) => IResult::Incomplete(e),

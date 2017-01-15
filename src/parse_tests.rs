@@ -19,6 +19,12 @@ macro_rules! assert_am_parse {
     };
 }
 
+macro_rules! assert_opcode_parse {
+    ( $ input : expr , $ expected : expr ) => {
+        assert_parse!($expected, opcode($input.as_bytes()));
+    };
+}
+
 macro_rules! assert_mnemonic_parse {
     ( $ input : expr , $ expected : expr ) => {
         let result = mnemonic($input.as_bytes());
@@ -101,7 +107,6 @@ fn parse_accumulator() {
 
 #[test]
 fn parse_immediate_hex() {
-    println!("parse immediate hex");
     assert_am_parse!("#$1", AddressingMode::Immediate(0x1, Sign::Implied));
     assert_am_parse!("#$10", AddressingMode::Immediate(0x10, Sign::Implied));
     assert_am_parse!("#$ff", AddressingMode::Immediate(0xff, Sign::Implied));
@@ -110,7 +115,6 @@ fn parse_immediate_hex() {
 
 #[test]
 fn parse_immediate_dec() {
-    println!("parse immediate dec");
     assert_am_parse!("#1", AddressingMode::Immediate(1, Sign::Implied));
     assert_am_parse!("#10", AddressingMode::Immediate(10, Sign::Implied));
     assert_am_parse!("#255", AddressingMode::Immediate(255, Sign::Implied));
@@ -187,6 +191,7 @@ fn parse_indirect_dec() {
     assert_am_parse!("(0)", AddressingMode::Indirect(0));
     assert_am_parse!("(10)", AddressingMode::Indirect(10));
 }
+
 #[test]
 fn parse_zero_page_or_relative_hex() {
     assert_am_parse!("$ff",
@@ -246,4 +251,10 @@ fn parse_absolute_dec() {
     assert_am_parse!("65535", AddressingMode::Absolute(65535));
     assert_am_parse!("1000", AddressingMode::Absolute(1000));
     assert_am_parse!("256", AddressingMode::Absolute(256));
+}
+
+#[test]
+fn parse_opcode() {
+    assert_opcode_parse!("ADC #1",
+                         OpCode(Mnemonic::ADC, AddressingMode::Immediate(1, Sign::Implied)))
 }
