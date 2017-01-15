@@ -201,13 +201,13 @@ fn parse_accumulator() {
 #[test]
 fn parse_immediate_hex() {
     let result = addressing_mode("#$1".as_bytes());
-    assert_parse!(AddressingMode::Immediate(0x1), result);
+    assert_parse!(AddressingMode::Immediate(0x1, Sign::Inferred), result);
 
     let result = addressing_mode("#$10".as_bytes());
-    assert_parse!(AddressingMode::Immediate(0x10), result);
+    assert_parse!(AddressingMode::Immediate(0x10, Sign::Inferred), result);
 
     let result = addressing_mode("#$ff".as_bytes());
-    assert_parse!(AddressingMode::Immediate(0xff), result);
+    assert_parse!(AddressingMode::Immediate(0xff, Sign::Inferred), result);
 
     let result = addressing_mode("#$100".as_bytes());
     assert_parse_fail!(result);
@@ -216,13 +216,16 @@ fn parse_immediate_hex() {
 #[test]
 fn parse_immediate_dec() {
     let result = addressing_mode("#1".as_bytes());
-    assert_parse!(AddressingMode::Immediate(1), result);
+    assert_parse!(AddressingMode::Immediate(1, Sign::Inferred), result);
 
     let result = addressing_mode("#10".as_bytes());
-    assert_parse!(AddressingMode::Immediate(10), result);
+    assert_parse!(AddressingMode::Immediate(10, Sign::Inferred), result);
 
     let result = addressing_mode("#255".as_bytes());
-    assert_parse!(AddressingMode::Immediate(255), result);
+    assert_parse!(AddressingMode::Immediate(255, Sign::Inferred), result);
+
+    let result = addressing_mode("#-10".as_bytes());
+    assert_parse!(AddressingMode::Immediate(10, Sign::Negative), result);
 
     let result = addressing_mode("#256".as_bytes());
     assert_parse_fail!(result);
@@ -232,26 +235,29 @@ fn parse_immediate_dec() {
 #[ignore]
 fn parse_zero_page_or_relative_hex() {
     let result = addressing_mode("$ff".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageOrRelative(0xff), result);
+    assert_parse!(AddressingMode::ZeroPageOrRelative(0xff, Sign::Inferred), result);
 
     let result = addressing_mode("$0".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageOrRelative(0x0), result);
+    assert_parse!(AddressingMode::ZeroPageOrRelative(0x0, Sign::Inferred), result);
 
     let result = addressing_mode("$10".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageOrRelative(0x10), result);
+    assert_parse!(AddressingMode::ZeroPageOrRelative(0x10, Sign::Inferred), result);
 }
 
 #[test]
 #[ignore]
 fn parse_zero_page_or_relative_dec() {
     let result = addressing_mode("255".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageOrRelative(255), result);
+    assert_parse!(AddressingMode::ZeroPageOrRelative(255, Sign::Inferred), result);
 
     let result = addressing_mode("0".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageOrRelative(0), result);
+    assert_parse!(AddressingMode::ZeroPageOrRelative(0, Sign::Inferred), result);
 
     let result = addressing_mode("10".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageOrRelative(10), result);
+    assert_parse!(AddressingMode::ZeroPageOrRelative(10, Sign::Inferred), result);
+
+    let result = addressing_mode("-10".as_bytes());
+    assert_parse!(AddressingMode::ZeroPageOrRelative(10, Sign::Negative), result);
 }
 
 #[test]

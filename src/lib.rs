@@ -67,9 +67,9 @@ pub enum Mnemonic {
     TYA,
 }
 
-enum Sign {
+#[derive(Debug, PartialEq, Eq)]
+pub enum Sign {
     Inferred,
-    Positive,
     Negative,
 }
 
@@ -77,8 +77,8 @@ enum Sign {
 pub enum AddressingMode {
     IndexedIndirect(u8),
     IndirectIndexed(u8),
-    ZeroPageOrRelative(u8),
-    Immediate(u8),
+    ZeroPageOrRelative(u8, Sign),
+    Immediate(u8, Sign),
     Absolute(u16),
     AbsoluteX(u16),
     AbsoluteY(u16),
@@ -123,7 +123,7 @@ named!(am_immediate <AddressingMode>,
     do_parse!(
         tag!("#") >>
         val: alt!(parse_byte_hex | parse_byte_dec) >>
-        (AddressingMode::Immediate(val))
+        ({ let (byte, sign) = val; AddressingMode::Immediate(byte, sign)})
     )
 );
 
@@ -137,7 +137,7 @@ named!(am_abs <AddressingMode>,
 named!(am_zp_or_relative <AddressingMode>,
     do_parse!(
         val: alt!(parse_byte_hex | parse_byte_dec) >>
-        (AddressingMode::ZeroPageOrRelative(val))
+        ({ let (byte, sign) = val; AddressingMode::ZeroPageOrRelative(byte, sign)})
     )
 );
 
@@ -145,7 +145,7 @@ named!(am_zp_x <AddressingMode>,
     do_parse!(
         val: alt!(parse_byte_hex | parse_byte_dec) >>
         tag!(",X") >>
-        (AddressingMode::ZeroPageX(val))
+        ({ let (byte, _) = val; AddressingMode::ZeroPageX(byte)})
     )
 );
 
@@ -153,7 +153,7 @@ named!(am_zp_y <AddressingMode>,
     do_parse!(
         val: alt!(parse_byte_hex | parse_byte_dec) >>
         tag!(",Y") >>
-        (AddressingMode::ZeroPageY(val))
+        ({ let (byte, _) = val; AddressingMode::ZeroPageY(byte)})
     )
 );
 
@@ -173,26 +173,39 @@ named!(am_abs_y <AddressingMode>,
     )
 );
 
-named!(parse_hex <usize>,
+named!(parse_hex <(usize, Sign)>,
     do_parse!(
         tag!("$") >>
         val: hex_digit >>
-        (usize::from_str_radix(from_utf8(val).unwrap(), 16).unwrap())
+        (usize::from_str_radix(from_utf8(val).unwrap(), 16).unwrap(), Sign::Inferred)
     )
 );
 
-named!(parse_dec <usize>,
+named!(parse_dec <(usize, Sign)>,
     do_parse!(
+        sign: parse_sign >>
         val: digit >>
-        (usize::from_str(from_utf8(val).unwrap()).unwrap())
+        (usize::from_str(from_utf8(val).unwrap()).unwrap(), sign)
     )
 );
 
-fn parse_byte_hex(i: &[u8]) -> IResult<&[u8], u8> {
+named!(parse_sign <Sign>,
+    do_parse!(
+        sign: opt!(tag!("-")) >>
+        (if let Some(_) = sign {
+            Sign::Negative
+        } else {
+            Sign::Inferred
+        })
+    )
+);
+
+fn parse_byte_hex(i: &[u8]) -> IResult<&[u8], (u8, Sign)> {
     match parse_hex(i) {
         IResult::Done(rest, value) => {
-            if value <= u8::max_value() as usize {
-                IResult::Done(rest, value as u8)
+            let (byte, sign) = value;
+            if byte <= u8::max_value() as usize {
+                IResult::Done(rest, (byte as u8, sign))
             } else {
                 IResult::Error(ErrorKind::Custom(0))
             }
@@ -205,10 +218,11 @@ fn parse_byte_hex(i: &[u8]) -> IResult<&[u8], u8> {
 fn parse_word_hex(i: &[u8]) -> IResult<&[u8], u16> {
     match parse_hex(i) {
         IResult::Done(rest, value) => {
-            if value <= u8::max_value() as usize {
+            let (word, _) = value;
+            if word <= u8::max_value() as usize {
                 IResult::Error(ErrorKind::Custom(0)) // Should be byte
-            } else if value <= u16::max_value() as usize {
-                IResult::Done(rest, value as u16)
+            } else if word <= u16::max_value() as usize {
+                IResult::Done(rest, word as u16)
             } else {
                 IResult::Error(ErrorKind::Custom(0))
             }
@@ -221,10 +235,11 @@ fn parse_word_hex(i: &[u8]) -> IResult<&[u8], u16> {
 fn parse_word_dec(i: &[u8]) -> IResult<&[u8], u16> {
     match parse_dec(i) {
         IResult::Done(rest, value) => {
-            if value <= u8::max_value() as usize {
+            let (word, _) = value;
+            if word <= u8::max_value() as usize {
                 IResult::Error(ErrorKind::Custom(0)) // Should be byte
-            } else if value <= u16::max_value() as usize {
-                IResult::Done(rest, value as u16)
+            } else if word <= u16::max_value() as usize {
+                IResult::Done(rest, word as u16)
             } else {
                 IResult::Error(ErrorKind::Custom(0))
             }
@@ -234,11 +249,12 @@ fn parse_word_dec(i: &[u8]) -> IResult<&[u8], u16> {
     }
 }
 
-fn parse_byte_dec(i: &[u8]) -> IResult<&[u8], u8> {
+fn parse_byte_dec(i: &[u8]) -> IResult<&[u8], (u8, Sign)> {
     match parse_dec(i) {
         IResult::Done(rest, value) => {
-            if value <= u8::max_value() as usize {
-                IResult::Done(rest, value as u8)
+            let (byte, sign) = value;
+            if byte <= u8::max_value() as usize {
+                IResult::Done(rest, (byte as u8, sign))
             } else {
                 IResult::Error(ErrorKind::Custom(0))
             }
