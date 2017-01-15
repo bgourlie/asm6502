@@ -6,7 +6,7 @@ mod parse_tests;
 #[macro_use]
 extern crate nom;
 
-use nom::{ErrorKind, IResult, space};
+use nom::{ErrorKind, IResult, line_ending, space};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Mnemonic {
@@ -93,6 +93,8 @@ pub enum AddressingMode {
 #[derive(Debug, PartialEq, Eq)]
 pub struct OpCode(Mnemonic, AddressingMode);
 
+named!(pub parse_lines <Vec<OpCode> >, separated_list!(line_ending, opcode));
+
 named!(opcode <OpCode>, do_parse!(
         mnemonic: mnemonic >>
         space >>
@@ -173,8 +175,16 @@ named!(addressing_mode <AddressingMode>,
         am_zp_or_relative |
         am_abs_x |
         am_abs_y |
-        am_abs
+        am_abs |
+        am_implied
     )
+);
+
+named!(am_implied <AddressingMode>,
+   do_parse!(
+       line_ending >>
+       (AddressingMode::Implied)
+   )
 );
 
 named!(am_indirect <AddressingMode>,
@@ -290,7 +300,7 @@ named!(parse_sign <Sign>,
 
 
 pub fn hex_u16(input: &[u8]) -> IResult<&[u8], u16> {
-    match is_a!(input, &b"0123456789abcdef"[..]) {
+    match is_a!(input, &b"0123456789abcdefABCDEF"[..]) {
         IResult::Error(e) => IResult::Error(e),
         IResult::Incomplete(e) => IResult::Incomplete(e),
         IResult::Done(i, o) => {
@@ -365,7 +375,7 @@ pub fn dec_u8(input: &[u8]) -> IResult<&[u8], u8> {
 }
 
 fn hex_u8(input: &[u8]) -> IResult<&[u8], u8> {
-    match is_a!(input, &b"0123456789abcdef"[..]) {
+    match is_a!(input, &b"0123456789abcdefABCDEF"[..]) {
         IResult::Error(e) => IResult::Error(e),
         IResult::Incomplete(e) => IResult::Incomplete(e),
         IResult::Done(remaining, parsed) => {

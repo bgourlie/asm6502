@@ -254,7 +254,28 @@ fn parse_absolute_dec() {
 }
 
 #[test]
+fn parse_implied() {
+    assert_am_parse!("\n", AddressingMode::Implied);
+}
+
+#[test]
 fn parse_opcode() {
     assert_opcode_parse!("ADC #1",
-                         OpCode(Mnemonic::ADC, AddressingMode::Immediate(1, Sign::Implied)))
+                         OpCode(Mnemonic::ADC, AddressingMode::Immediate(1, Sign::Implied)));
+}
+
+#[test]
+fn parse_lines() {
+    match super::parse_lines("ADC #1\nSBC $FFFF\nJMP ($ff00)\n".as_bytes()) {
+        IResult::Done(_, opcodes) => {
+            println!("{:?}", opcodes);
+            assert_eq!(3, opcodes.len());
+            assert_eq!(OpCode(Mnemonic::ADC,
+                              AddressingMode::Immediate(1, Sign::Implied)), opcodes[0]);
+            assert_eq!(OpCode(Mnemonic::SBC, AddressingMode::Absolute(0xffff)), opcodes[1]);
+            assert_eq!(OpCode(Mnemonic::JMP, AddressingMode::Indirect(0xff00)), opcodes[2]);
+        }
+        IResult::Error(e) => panic!("Parse lines failed with: {:?}", e),
+        IResult::Incomplete(e) => panic!("Parse lines failed with: {:?}", e),
+    }
 }
