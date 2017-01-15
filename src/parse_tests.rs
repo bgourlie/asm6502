@@ -42,62 +42,62 @@ macro_rules! assert_parse_fail {
 
 #[test]
 fn parse_mnemonic() {
-    assert_mnemonic_parse!("ADC", Mnemonic::ADC);
-    assert_mnemonic_parse!("AND", Mnemonic::AND);
-    assert_mnemonic_parse!("ASL", Mnemonic::ASL);
-    assert_mnemonic_parse!("BCC", Mnemonic::BCC);
-    assert_mnemonic_parse!("BCS", Mnemonic::BCS);
-    assert_mnemonic_parse!("BEQ", Mnemonic::BEQ);
-    assert_mnemonic_parse!("BIT", Mnemonic::BIT);
-    assert_mnemonic_parse!("BMI", Mnemonic::BMI);
-    assert_mnemonic_parse!("BNE", Mnemonic::BNE);
-    assert_mnemonic_parse!("BPL", Mnemonic::BPL);
-    assert_mnemonic_parse!("BRK", Mnemonic::BRK);
-    assert_mnemonic_parse!("BVC", Mnemonic::BVC);
-    assert_mnemonic_parse!("BVS", Mnemonic::BVS);
-    assert_mnemonic_parse!("CLC", Mnemonic::CLC);
-    assert_mnemonic_parse!("CLD", Mnemonic::CLD);
-    assert_mnemonic_parse!("CLI", Mnemonic::CLI);
-    assert_mnemonic_parse!("CLV", Mnemonic::CLV);
-    assert_mnemonic_parse!("CMP", Mnemonic::CMP);
-    assert_mnemonic_parse!("CPX", Mnemonic::CPX);
-    assert_mnemonic_parse!("CPY", Mnemonic::CPY);
-    assert_mnemonic_parse!("DEC", Mnemonic::DEC);
-    assert_mnemonic_parse!("DEX", Mnemonic::DEX);
-    assert_mnemonic_parse!("DEY", Mnemonic::DEY);
-    assert_mnemonic_parse!("EOR", Mnemonic::EOR);
-    assert_mnemonic_parse!("INC", Mnemonic::INC);
-    assert_mnemonic_parse!("INX", Mnemonic::INX);
-    assert_mnemonic_parse!("INY", Mnemonic::INY);
-    assert_mnemonic_parse!("JMP", Mnemonic::JMP);
-    assert_mnemonic_parse!("JSR", Mnemonic::JSR);
-    assert_mnemonic_parse!("LDA", Mnemonic::LDA);
-    assert_mnemonic_parse!("LDX", Mnemonic::LDX);
-    assert_mnemonic_parse!("LDY", Mnemonic::LDY);
-    assert_mnemonic_parse!("LSR", Mnemonic::LSR);
-    assert_mnemonic_parse!("NOP", Mnemonic::NOP);
-    assert_mnemonic_parse!("ORA", Mnemonic::ORA);
-    assert_mnemonic_parse!("PHA", Mnemonic::PHA);
-    assert_mnemonic_parse!("PHP", Mnemonic::PHP);
-    assert_mnemonic_parse!("PLA", Mnemonic::PLA);
-    assert_mnemonic_parse!("PLP", Mnemonic::PLP);
-    assert_mnemonic_parse!("ROL", Mnemonic::ROL);
-    assert_mnemonic_parse!("ROR", Mnemonic::ROR);
-    assert_mnemonic_parse!("RTI", Mnemonic::RTI);
-    assert_mnemonic_parse!("RTS", Mnemonic::RTS);
-    assert_mnemonic_parse!("SBC", Mnemonic::SBC);
-    assert_mnemonic_parse!("SEC", Mnemonic::SEC);
-    assert_mnemonic_parse!("SED", Mnemonic::SED);
-    assert_mnemonic_parse!("SEI", Mnemonic::SEI);
-    assert_mnemonic_parse!("STA", Mnemonic::STA);
-    assert_mnemonic_parse!("STX", Mnemonic::STX);
-    assert_mnemonic_parse!("STY", Mnemonic::STY);
-    assert_mnemonic_parse!("TAX", Mnemonic::TAX);
-    assert_mnemonic_parse!("TAY", Mnemonic::TAY);
-    assert_mnemonic_parse!("TSX", Mnemonic::TSX);
-    assert_mnemonic_parse!("TXA", Mnemonic::TXA);
-    assert_mnemonic_parse!("TXS", Mnemonic::TXS);
-    assert_mnemonic_parse!("TYA", Mnemonic::TYA);
+    assert_mnemonic_parse!("ADC", Mnemonic::Adc);
+    assert_mnemonic_parse!("AND", Mnemonic::And);
+    assert_mnemonic_parse!("ASL", Mnemonic::Asl);
+    assert_mnemonic_parse!("BCC", Mnemonic::Bcc);
+    assert_mnemonic_parse!("BCS", Mnemonic::Bcs);
+    assert_mnemonic_parse!("BEQ", Mnemonic::Beq);
+    assert_mnemonic_parse!("BIT", Mnemonic::Bit);
+    assert_mnemonic_parse!("BMI", Mnemonic::Bmi);
+    assert_mnemonic_parse!("BNE", Mnemonic::Bne);
+    assert_mnemonic_parse!("BPL", Mnemonic::Bpl);
+    assert_mnemonic_parse!("BRK", Mnemonic::Brk);
+    assert_mnemonic_parse!("BVC", Mnemonic::Bvc);
+    assert_mnemonic_parse!("BVS", Mnemonic::Bvs);
+    assert_mnemonic_parse!("CLC", Mnemonic::Clc);
+    assert_mnemonic_parse!("CLD", Mnemonic::Cld);
+    assert_mnemonic_parse!("CLI", Mnemonic::Cli);
+    assert_mnemonic_parse!("CLV", Mnemonic::Clv);
+    assert_mnemonic_parse!("CMP", Mnemonic::Cmp);
+    assert_mnemonic_parse!("CPX", Mnemonic::Cpx);
+    assert_mnemonic_parse!("CPY", Mnemonic::Cpy);
+    assert_mnemonic_parse!("DEC", Mnemonic::Dec);
+    assert_mnemonic_parse!("DEX", Mnemonic::Dex);
+    assert_mnemonic_parse!("DEY", Mnemonic::Dey);
+    assert_mnemonic_parse!("EOR", Mnemonic::Eor);
+    assert_mnemonic_parse!("INC", Mnemonic::Inc);
+    assert_mnemonic_parse!("INX", Mnemonic::Inx);
+    assert_mnemonic_parse!("INY", Mnemonic::Iny);
+    assert_mnemonic_parse!("JMP", Mnemonic::Jmp);
+    assert_mnemonic_parse!("JSR", Mnemonic::Jsr);
+    assert_mnemonic_parse!("LDA", Mnemonic::Lda);
+    assert_mnemonic_parse!("LDX", Mnemonic::Ldx);
+    assert_mnemonic_parse!("LDY", Mnemonic::Ldy);
+    assert_mnemonic_parse!("LSR", Mnemonic::Lsr);
+    assert_mnemonic_parse!("NOP", Mnemonic::Nop);
+    assert_mnemonic_parse!("ORA", Mnemonic::Ora);
+    assert_mnemonic_parse!("PHA", Mnemonic::Pha);
+    assert_mnemonic_parse!("PHP", Mnemonic::Php);
+    assert_mnemonic_parse!("PLA", Mnemonic::Pla);
+    assert_mnemonic_parse!("PLP", Mnemonic::Plp);
+    assert_mnemonic_parse!("ROL", Mnemonic::Rol);
+    assert_mnemonic_parse!("ROR", Mnemonic::Ror);
+    assert_mnemonic_parse!("RTI", Mnemonic::Rti);
+    assert_mnemonic_parse!("RTS", Mnemonic::Rts);
+    assert_mnemonic_parse!("SBC", Mnemonic::Sbc);
+    assert_mnemonic_parse!("SEC", Mnemonic::Sec);
+    assert_mnemonic_parse!("SED", Mnemonic::Sed);
+    assert_mnemonic_parse!("SEI", Mnemonic::Sei);
+    assert_mnemonic_parse!("STA", Mnemonic::Sta);
+    assert_mnemonic_parse!("STX", Mnemonic::Stx);
+    assert_mnemonic_parse!("STY", Mnemonic::Sty);
+    assert_mnemonic_parse!("TAX", Mnemonic::Tax);
+    assert_mnemonic_parse!("TAY", Mnemonic::Tay);
+    assert_mnemonic_parse!("TSX", Mnemonic::Tsx);
+    assert_mnemonic_parse!("TXA", Mnemonic::Txa);
+    assert_mnemonic_parse!("TXS", Mnemonic::Txs);
+    assert_mnemonic_parse!("TYA", Mnemonic::Tya);
 }
 
 #[test]
@@ -261,7 +261,7 @@ fn parse_implied() {
 #[test]
 fn parse_opcode() {
     assert_opcode_parse!("ADC #1",
-                         OpCode(Mnemonic::ADC, AddressingMode::Immediate(1, Sign::Implied)));
+                         OpCode(Mnemonic::Adc, AddressingMode::Immediate(1, Sign::Implied)));
 }
 
 #[test]
@@ -270,10 +270,12 @@ fn parse_lines() {
         IResult::Done(_, opcodes) => {
             println!("{:?}", opcodes);
             assert_eq!(3, opcodes.len());
-            assert_eq!(OpCode(Mnemonic::ADC,
-                              AddressingMode::Immediate(1, Sign::Implied)), opcodes[0]);
-            assert_eq!(OpCode(Mnemonic::SBC, AddressingMode::Absolute(0xffff)), opcodes[1]);
-            assert_eq!(OpCode(Mnemonic::JMP, AddressingMode::Indirect(0xff00)), opcodes[2]);
+            assert_eq!(OpCode(Mnemonic::Adc, AddressingMode::Immediate(1, Sign::Implied)),
+                       opcodes[0]);
+            assert_eq!(OpCode(Mnemonic::Sbc, AddressingMode::Absolute(0xffff)),
+                       opcodes[1]);
+            assert_eq!(OpCode(Mnemonic::Jmp, AddressingMode::Indirect(0xff00)),
+                       opcodes[2]);
         }
         IResult::Error(e) => panic!("Parse lines failed with: {:?}", e),
         IResult::Incomplete(e) => panic!("Parse lines failed with: {:?}", e),

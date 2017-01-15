@@ -10,62 +10,62 @@ use nom::{ErrorKind, IResult, line_ending, space};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Mnemonic {
-    ADC,
-    AND,
-    ASL,
-    BCC,
-    BCS,
-    BEQ,
-    BIT,
-    BMI,
-    BNE,
-    BPL,
-    BRK,
-    BVC,
-    BVS,
-    CLC,
-    CLD,
-    CLI,
-    CLV,
-    CMP,
-    CPX,
-    CPY,
-    DEC,
-    DEX,
-    DEY,
-    EOR,
-    INC,
-    INX,
-    INY,
-    JMP,
-    JSR,
-    LDA,
-    LDX,
-    LDY,
-    LSR,
-    NOP,
-    ORA,
-    PHA,
-    PHP,
-    PLA,
-    PLP,
-    ROL,
-    ROR,
-    RTI,
-    RTS,
-    SBC,
-    SEC,
-    SED,
-    SEI,
-    STA,
-    STX,
-    STY,
-    TAX,
-    TAY,
-    TSX,
-    TXA,
-    TXS,
-    TYA,
+    Adc,
+    And,
+    Asl,
+    Bcc,
+    Bcs,
+    Beq,
+    Bit,
+    Bmi,
+    Bne,
+    Bpl,
+    Brk,
+    Bvc,
+    Bvs,
+    Clc,
+    Cld,
+    Cli,
+    Clv,
+    Cmp,
+    Cpx,
+    Cpy,
+    Dec,
+    Dex,
+    Dey,
+    Eor,
+    Inc,
+    Inx,
+    Iny,
+    Jmp,
+    Jsr,
+    Lda,
+    Ldx,
+    Ldy,
+    Lsr,
+    Nop,
+    Ora,
+    Pha,
+    Php,
+    Pla,
+    Plp,
+    Rol,
+    Ror,
+    Rti,
+    Rts,
+    Sbc,
+    Sec,
+    Sed,
+    Sei,
+    Sta,
+    Stx,
+    Sty,
+    Tax,
+    Tay,
+    Tsx,
+    Txa,
+    Txs,
+    Tya,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -104,62 +104,62 @@ named!(opcode <OpCode>, do_parse!(
 );
 
 named!(mnemonic <Mnemonic>, alt!(
-        tag!("ADC") => { |_| Mnemonic::ADC } |
-        tag!("AND") => { |_| Mnemonic::AND } |
-        tag!("ASL") => { |_| Mnemonic::ASL } |
-        tag!("BCC") => { |_| Mnemonic::BCC } |
-        tag!("BCS") => { |_| Mnemonic::BCS } |
-        tag!("BEQ") => { |_| Mnemonic::BEQ } |
-        tag!("BIT") => { |_| Mnemonic::BIT } |
-        tag!("BMI") => { |_| Mnemonic::BMI } |
-        tag!("BNE") => { |_| Mnemonic::BNE } |
-        tag!("BPL") => { |_| Mnemonic::BPL } |
-        tag!("BRK") => { |_| Mnemonic::BRK } |
-        tag!("BVC") => { |_| Mnemonic::BVC } |
-        tag!("BVS") => { |_| Mnemonic::BVS } |
-        tag!("CLC") => { |_| Mnemonic::CLC } |
-        tag!("CLD") => { |_| Mnemonic::CLD } |
-        tag!("CLI") => { |_| Mnemonic::CLI } |
-        tag!("CLV") => { |_| Mnemonic::CLV } |
-        tag!("CMP") => { |_| Mnemonic::CMP } |
-        tag!("CPX") => { |_| Mnemonic::CPX } |
-        tag!("CPY") => { |_| Mnemonic::CPY } |
-        tag!("DEC") => { |_| Mnemonic::DEC } |
-        tag!("DEX") => { |_| Mnemonic::DEX } |
-        tag!("DEY") => { |_| Mnemonic::DEY } |
-        tag!("EOR") => { |_| Mnemonic::EOR } |
-        tag!("INC") => { |_| Mnemonic::INC } |
-        tag!("INX") => { |_| Mnemonic::INX } |
-        tag!("INY") => { |_| Mnemonic::INY } |
-        tag!("JMP") => { |_| Mnemonic::JMP } |
-        tag!("JSR") => { |_| Mnemonic::JSR } |
-        tag!("LDA") => { |_| Mnemonic::LDA } |
-        tag!("LDX") => { |_| Mnemonic::LDX } |
-        tag!("LDY") => { |_| Mnemonic::LDY } |
-        tag!("LSR") => { |_| Mnemonic::LSR } |
-        tag!("NOP") => { |_| Mnemonic::NOP } |
-        tag!("ORA") => { |_| Mnemonic::ORA } |
-        tag!("PHA") => { |_| Mnemonic::PHA } |
-        tag!("PHP") => { |_| Mnemonic::PHP } |
-        tag!("PLA") => { |_| Mnemonic::PLA } |
-        tag!("PLP") => { |_| Mnemonic::PLP } |
-        tag!("ROL") => { |_| Mnemonic::ROL } |
-        tag!("ROR") => { |_| Mnemonic::ROR } |
-        tag!("RTI") => { |_| Mnemonic::RTI } |
-        tag!("RTS") => { |_| Mnemonic::RTS } |
-        tag!("SBC") => { |_| Mnemonic::SBC } |
-        tag!("SEC") => { |_| Mnemonic::SEC } |
-        tag!("SED") => { |_| Mnemonic::SED } |
-        tag!("SEI") => { |_| Mnemonic::SEI } |
-        tag!("STA") => { |_| Mnemonic::STA } |
-        tag!("STX") => { |_| Mnemonic::STX } |
-        tag!("STY") => { |_| Mnemonic::STY } |
-        tag!("TAX") => { |_| Mnemonic::TAX } |
-        tag!("TAY") => { |_| Mnemonic::TAY } |
-        tag!("TSX") => { |_| Mnemonic::TSX } |
-        tag!("TXA") => { |_| Mnemonic::TXA } |
-        tag!("TXS") => { |_| Mnemonic::TXS } |
-        tag!("TYA") => { |_| Mnemonic::TYA }
+        tag!("ADC") => { |_| Mnemonic::Adc } |
+        tag!("AND") => { |_| Mnemonic::And } |
+        tag!("ASL") => { |_| Mnemonic::Asl } |
+        tag!("BCC") => { |_| Mnemonic::Bcc } |
+        tag!("BCS") => { |_| Mnemonic::Bcs } |
+        tag!("BEQ") => { |_| Mnemonic::Beq } |
+        tag!("BIT") => { |_| Mnemonic::Bit } |
+        tag!("BMI") => { |_| Mnemonic::Bmi } |
+        tag!("BNE") => { |_| Mnemonic::Bne } |
+        tag!("BPL") => { |_| Mnemonic::Bpl } |
+        tag!("BRK") => { |_| Mnemonic::Brk } |
+        tag!("BVC") => { |_| Mnemonic::Bvc } |
+        tag!("BVS") => { |_| Mnemonic::Bvs } |
+        tag!("CLC") => { |_| Mnemonic::Clc } |
+        tag!("CLD") => { |_| Mnemonic::Cld } |
+        tag!("CLI") => { |_| Mnemonic::Cli } |
+        tag!("CLV") => { |_| Mnemonic::Clv } |
+        tag!("CMP") => { |_| Mnemonic::Cmp } |
+        tag!("CPX") => { |_| Mnemonic::Cpx } |
+        tag!("CPY") => { |_| Mnemonic::Cpy } |
+        tag!("DEC") => { |_| Mnemonic::Dec } |
+        tag!("DEX") => { |_| Mnemonic::Dex } |
+        tag!("DEY") => { |_| Mnemonic::Dey } |
+        tag!("EOR") => { |_| Mnemonic::Eor } |
+        tag!("INC") => { |_| Mnemonic::Inc } |
+        tag!("INX") => { |_| Mnemonic::Inx } |
+        tag!("INY") => { |_| Mnemonic::Iny } |
+        tag!("JMP") => { |_| Mnemonic::Jmp } |
+        tag!("JSR") => { |_| Mnemonic::Jsr } |
+        tag!("LDA") => { |_| Mnemonic::Lda } |
+        tag!("LDX") => { |_| Mnemonic::Ldx } |
+        tag!("LDY") => { |_| Mnemonic::Ldy } |
+        tag!("LSR") => { |_| Mnemonic::Lsr } |
+        tag!("NOP") => { |_| Mnemonic::Nop } |
+        tag!("ORA") => { |_| Mnemonic::Ora } |
+        tag!("PHA") => { |_| Mnemonic::Pha } |
+        tag!("PHP") => { |_| Mnemonic::Php } |
+        tag!("PLA") => { |_| Mnemonic::Pla } |
+        tag!("PLP") => { |_| Mnemonic::Plp } |
+        tag!("ROL") => { |_| Mnemonic::Rol } |
+        tag!("ROR") => { |_| Mnemonic::Ror } |
+        tag!("RTI") => { |_| Mnemonic::Rti } |
+        tag!("RTS") => { |_| Mnemonic::Rts } |
+        tag!("SBC") => { |_| Mnemonic::Sbc } |
+        tag!("SEC") => { |_| Mnemonic::Sec } |
+        tag!("SED") => { |_| Mnemonic::Sed } |
+        tag!("SEI") => { |_| Mnemonic::Sei } |
+        tag!("STA") => { |_| Mnemonic::Sta } |
+        tag!("STX") => { |_| Mnemonic::Stx } |
+        tag!("STY") => { |_| Mnemonic::Sty } |
+        tag!("TAX") => { |_| Mnemonic::Tax } |
+        tag!("TAY") => { |_| Mnemonic::Tay } |
+        tag!("TSX") => { |_| Mnemonic::Tsx } |
+        tag!("TXA") => { |_| Mnemonic::Txa } |
+        tag!("TXS") => { |_| Mnemonic::Txs } |
+        tag!("TYA") => { |_| Mnemonic::Tya }
         )
     );
 
