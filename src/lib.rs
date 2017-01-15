@@ -104,62 +104,62 @@ named!(opcode <OpCode>, do_parse!(
 );
 
 named!(mnemonic <Mnemonic>, alt!(
-        tag!("ADC") => { |_| Mnemonic::Adc } |
-        tag!("AND") => { |_| Mnemonic::And } |
-        tag!("ASL") => { |_| Mnemonic::Asl } |
-        tag!("BCC") => { |_| Mnemonic::Bcc } |
-        tag!("BCS") => { |_| Mnemonic::Bcs } |
-        tag!("BEQ") => { |_| Mnemonic::Beq } |
-        tag!("BIT") => { |_| Mnemonic::Bit } |
-        tag!("BMI") => { |_| Mnemonic::Bmi } |
-        tag!("BNE") => { |_| Mnemonic::Bne } |
-        tag!("BPL") => { |_| Mnemonic::Bpl } |
-        tag!("BRK") => { |_| Mnemonic::Brk } |
-        tag!("BVC") => { |_| Mnemonic::Bvc } |
-        tag!("BVS") => { |_| Mnemonic::Bvs } |
-        tag!("CLC") => { |_| Mnemonic::Clc } |
-        tag!("CLD") => { |_| Mnemonic::Cld } |
-        tag!("CLI") => { |_| Mnemonic::Cli } |
-        tag!("CLV") => { |_| Mnemonic::Clv } |
-        tag!("CMP") => { |_| Mnemonic::Cmp } |
-        tag!("CPX") => { |_| Mnemonic::Cpx } |
-        tag!("CPY") => { |_| Mnemonic::Cpy } |
-        tag!("DEC") => { |_| Mnemonic::Dec } |
-        tag!("DEX") => { |_| Mnemonic::Dex } |
-        tag!("DEY") => { |_| Mnemonic::Dey } |
-        tag!("EOR") => { |_| Mnemonic::Eor } |
-        tag!("INC") => { |_| Mnemonic::Inc } |
-        tag!("INX") => { |_| Mnemonic::Inx } |
-        tag!("INY") => { |_| Mnemonic::Iny } |
-        tag!("JMP") => { |_| Mnemonic::Jmp } |
-        tag!("JSR") => { |_| Mnemonic::Jsr } |
-        tag!("LDA") => { |_| Mnemonic::Lda } |
-        tag!("LDX") => { |_| Mnemonic::Ldx } |
-        tag!("LDY") => { |_| Mnemonic::Ldy } |
-        tag!("LSR") => { |_| Mnemonic::Lsr } |
-        tag!("NOP") => { |_| Mnemonic::Nop } |
-        tag!("ORA") => { |_| Mnemonic::Ora } |
-        tag!("PHA") => { |_| Mnemonic::Pha } |
-        tag!("PHP") => { |_| Mnemonic::Php } |
-        tag!("PLA") => { |_| Mnemonic::Pla } |
-        tag!("PLP") => { |_| Mnemonic::Plp } |
-        tag!("ROL") => { |_| Mnemonic::Rol } |
-        tag!("ROR") => { |_| Mnemonic::Ror } |
-        tag!("RTI") => { |_| Mnemonic::Rti } |
-        tag!("RTS") => { |_| Mnemonic::Rts } |
-        tag!("SBC") => { |_| Mnemonic::Sbc } |
-        tag!("SEC") => { |_| Mnemonic::Sec } |
-        tag!("SED") => { |_| Mnemonic::Sed } |
-        tag!("SEI") => { |_| Mnemonic::Sei } |
-        tag!("STA") => { |_| Mnemonic::Sta } |
-        tag!("STX") => { |_| Mnemonic::Stx } |
-        tag!("STY") => { |_| Mnemonic::Sty } |
-        tag!("TAX") => { |_| Mnemonic::Tax } |
-        tag!("TAY") => { |_| Mnemonic::Tay } |
-        tag!("TSX") => { |_| Mnemonic::Tsx } |
-        tag!("TXA") => { |_| Mnemonic::Txa } |
-        tag!("TXS") => { |_| Mnemonic::Txs } |
-        tag!("TYA") => { |_| Mnemonic::Tya }
+        tag_no_case!("ADC") => { |_| Mnemonic::Adc } |
+        tag_no_case!("AND") => { |_| Mnemonic::And } |
+        tag_no_case!("ASL") => { |_| Mnemonic::Asl } |
+        tag_no_case!("BCC") => { |_| Mnemonic::Bcc } |
+        tag_no_case!("BCS") => { |_| Mnemonic::Bcs } |
+        tag_no_case!("BEQ") => { |_| Mnemonic::Beq } |
+        tag_no_case!("BIT") => { |_| Mnemonic::Bit } |
+        tag_no_case!("BMI") => { |_| Mnemonic::Bmi } |
+        tag_no_case!("BNE") => { |_| Mnemonic::Bne } |
+        tag_no_case!("BPL") => { |_| Mnemonic::Bpl } |
+        tag_no_case!("BRK") => { |_| Mnemonic::Brk } |
+        tag_no_case!("BVC") => { |_| Mnemonic::Bvc } |
+        tag_no_case!("BVS") => { |_| Mnemonic::Bvs } |
+        tag_no_case!("CLC") => { |_| Mnemonic::Clc } |
+        tag_no_case!("CLD") => { |_| Mnemonic::Cld } |
+        tag_no_case!("CLI") => { |_| Mnemonic::Cli } |
+        tag_no_case!("CLV") => { |_| Mnemonic::Clv } |
+        tag_no_case!("CMP") => { |_| Mnemonic::Cmp } |
+        tag_no_case!("CPX") => { |_| Mnemonic::Cpx } |
+        tag_no_case!("CPY") => { |_| Mnemonic::Cpy } |
+        tag_no_case!("DEC") => { |_| Mnemonic::Dec } |
+        tag_no_case!("DEX") => { |_| Mnemonic::Dex } |
+        tag_no_case!("DEY") => { |_| Mnemonic::Dey } |
+        tag_no_case!("EOR") => { |_| Mnemonic::Eor } |
+        tag_no_case!("INC") => { |_| Mnemonic::Inc } |
+        tag_no_case!("INX") => { |_| Mnemonic::Inx } |
+        tag_no_case!("INY") => { |_| Mnemonic::Iny } |
+        tag_no_case!("JMP") => { |_| Mnemonic::Jmp } |
+        tag_no_case!("JSR") => { |_| Mnemonic::Jsr } |
+        tag_no_case!("LDA") => { |_| Mnemonic::Lda } |
+        tag_no_case!("LDX") => { |_| Mnemonic::Ldx } |
+        tag_no_case!("LDY") => { |_| Mnemonic::Ldy } |
+        tag_no_case!("LSR") => { |_| Mnemonic::Lsr } |
+        tag_no_case!("NOP") => { |_| Mnemonic::Nop } |
+        tag_no_case!("ORA") => { |_| Mnemonic::Ora } |
+        tag_no_case!("PHA") => { |_| Mnemonic::Pha } |
+        tag_no_case!("PHP") => { |_| Mnemonic::Php } |
+        tag_no_case!("PLA") => { |_| Mnemonic::Pla } |
+        tag_no_case!("PLP") => { |_| Mnemonic::Plp } |
+        tag_no_case!("ROL") => { |_| Mnemonic::Rol } |
+        tag_no_case!("ROR") => { |_| Mnemonic::Ror } |
+        tag_no_case!("RTI") => { |_| Mnemonic::Rti } |
+        tag_no_case!("RTS") => { |_| Mnemonic::Rts } |
+        tag_no_case!("SBC") => { |_| Mnemonic::Sbc } |
+        tag_no_case!("SEC") => { |_| Mnemonic::Sec } |
+        tag_no_case!("SED") => { |_| Mnemonic::Sed } |
+        tag_no_case!("SEI") => { |_| Mnemonic::Sei } |
+        tag_no_case!("STA") => { |_| Mnemonic::Sta } |
+        tag_no_case!("STX") => { |_| Mnemonic::Stx } |
+        tag_no_case!("STY") => { |_| Mnemonic::Sty } |
+        tag_no_case!("TAX") => { |_| Mnemonic::Tax } |
+        tag_no_case!("TAY") => { |_| Mnemonic::Tay } |
+        tag_no_case!("TSX") => { |_| Mnemonic::Tsx } |
+        tag_no_case!("TXA") => { |_| Mnemonic::Txa } |
+        tag_no_case!("TXS") => { |_| Mnemonic::Txs } |
+        tag_no_case!("TYA") => { |_| Mnemonic::Tya }
         )
     );
 
@@ -197,21 +197,21 @@ named!(am_indirect <AddressingMode>,
 
 named!(am_indexed_indirect <AddressingMode>,
     do_parse!(
-        byte: delimited!(tag!("("), alt!(parse_byte_hex | parse_byte_dec), tag!(",X")) >>
+        byte: delimited!(tag!("("), alt!(parse_byte_hex | parse_byte_dec), tag_no_case!(",X")) >>
         ({ let (addr, _) = byte; AddressingMode::IndexedIndirect(addr) })
     )
 );
 
 named!(am_indirect_indexed <AddressingMode>,
     do_parse!(
-        byte: delimited!(tag!("("), alt!(parse_byte_hex | parse_byte_dec), tag!("),Y")) >>
+        byte: delimited!(tag!("("), alt!(parse_byte_hex | parse_byte_dec), tag_no_case!("),Y")) >>
         ({ let (addr, _) = byte; AddressingMode::IndirectIndexed(addr) })
     )
 );
 
 named!(am_accumulator <AddressingMode>,
     do_parse!(
-        tag!("A") >>
+        tag_no_case!("A") >>
         (AddressingMode::Accumulator)
     )
 );
@@ -239,28 +239,28 @@ named!(am_zp_or_relative <AddressingMode>,
 
 named!(am_zp_x <AddressingMode>,
     do_parse!(
-        val: terminated!(alt!(parse_byte_hex | parse_byte_dec), tag!(",X")) >>
+        val: terminated!(alt!(parse_byte_hex | parse_byte_dec), tag_no_case!(",X")) >>
         ({ let (byte, _) = val; AddressingMode::ZeroPageX(byte)})
     )
 );
 
 named!(am_zp_y <AddressingMode>,
     do_parse!(
-        val: terminated!(alt!(parse_byte_hex | parse_byte_dec), tag!(",Y")) >>
+        val: terminated!(alt!(parse_byte_hex | parse_byte_dec), tag_no_case!(",Y")) >>
         ({ let (byte, _) = val; AddressingMode::ZeroPageY(byte)})
     )
 );
 
 named!(am_abs_x <AddressingMode>,
     do_parse!(
-        val: terminated!(alt!(parse_word_hex | dec_u16), tag!(",X")) >>
+        val: terminated!(alt!(parse_word_hex | dec_u16), tag_no_case!(",X")) >>
         (AddressingMode::AbsoluteX(val))
     )
 );
 
 named!(am_abs_y <AddressingMode>,
     do_parse!(
-        val: terminated!(alt!(parse_word_hex | dec_u16), tag!(",Y")) >>
+        val: terminated!(alt!(parse_word_hex | dec_u16), tag_no_case!(",Y")) >>
         (AddressingMode::AbsoluteY(val))
     )
 );
