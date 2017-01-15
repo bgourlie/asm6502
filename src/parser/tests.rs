@@ -1,5 +1,6 @@
 use nom::IResult;
-use super::*;
+use parser::*;
+use tokens::*;
 
 macro_rules! assert_parse {
     ( $ left : expr , $ right : expr ) => {
