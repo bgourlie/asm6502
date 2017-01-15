@@ -1,5 +1,4 @@
 use nom::IResult;
-use std::fmt::Debug;
 use super::*;
 
 macro_rules! assert_parse {
@@ -13,6 +12,20 @@ macro_rules! assert_parse {
     };
 }
 
+macro_rules! assert_am_parse {
+    ( $ input : expr , $ expected : expr ) => {
+        let result = addressing_mode($input.as_bytes());
+        assert_parse!($expected, result);
+    };
+}
+
+macro_rules! assert_mnemonic_parse {
+    ( $ input : expr , $ expected : expr ) => {
+        let result = mnemonic($input.as_bytes());
+        assert_parse!($expected, result);
+    };
+}
+
 macro_rules! assert_parse_fail {
     ( $ result : expr ) => {
         if let IResult::Done(_, actual) = $result {
@@ -23,361 +36,214 @@ macro_rules! assert_parse_fail {
 
 #[test]
 fn parse_mnemonic() {
-    let result = mnemonic("ADC".as_bytes());
-    assert_parse!(Mnemonic::ADC, result);
-
-    let result = mnemonic("AND".as_bytes());
-    assert_parse!(Mnemonic::AND, result);
-
-    let result = mnemonic("ASL".as_bytes());
-    assert_parse!(Mnemonic::ASL, result);
-
-    let result = mnemonic("BCC".as_bytes());
-    assert_parse!(Mnemonic::BCC, result);
-
-    let result = mnemonic("BCS".as_bytes());
-    assert_parse!(Mnemonic::BCS, result);
-
-    let result = mnemonic("BEQ".as_bytes());
-    assert_parse!(Mnemonic::BEQ, result);
-
-    let result = mnemonic("BIT".as_bytes());
-    assert_parse!(Mnemonic::BIT, result);
-
-    let result = mnemonic("BMI".as_bytes());
-    assert_parse!(Mnemonic::BMI, result);
-
-    let result = mnemonic("BNE".as_bytes());
-    assert_parse!(Mnemonic::BNE, result);
-
-    let result = mnemonic("BPL".as_bytes());
-    assert_parse!(Mnemonic::BPL, result);
-
-    let result = mnemonic("BRK".as_bytes());
-    assert_parse!(Mnemonic::BRK, result);
-
-    let result = mnemonic("BVC".as_bytes());
-    assert_parse!(Mnemonic::BVC, result);
-
-    let result = mnemonic("BVS".as_bytes());
-    assert_parse!(Mnemonic::BVS, result);
-
-    let result = mnemonic("CLC".as_bytes());
-    assert_parse!(Mnemonic::CLC, result);
-
-    let result = mnemonic("CLD".as_bytes());
-    assert_parse!(Mnemonic::CLD, result);
-
-    let result = mnemonic("CLI".as_bytes());
-    assert_parse!(Mnemonic::CLI, result);
-
-    let result = mnemonic("CLV".as_bytes());
-    assert_parse!(Mnemonic::CLV, result);
-
-    let result = mnemonic("CMP".as_bytes());
-    assert_parse!(Mnemonic::CMP, result);
-
-    let result = mnemonic("CPX".as_bytes());
-    assert_parse!(Mnemonic::CPX, result);
-
-    let result = mnemonic("CPY".as_bytes());
-    assert_parse!(Mnemonic::CPY, result);
-
-    let result = mnemonic("DEC".as_bytes());
-    assert_parse!(Mnemonic::DEC, result);
-
-    let result = mnemonic("DEX".as_bytes());
-    assert_parse!(Mnemonic::DEX, result);
-
-    let result = mnemonic("DEY".as_bytes());
-    assert_parse!(Mnemonic::DEY, result);
-
-    let result = mnemonic("EOR".as_bytes());
-    assert_parse!(Mnemonic::EOR, result);
-
-    let result = mnemonic("INC".as_bytes());
-    assert_parse!(Mnemonic::INC, result);
-
-    let result = mnemonic("INX".as_bytes());
-    assert_parse!(Mnemonic::INX, result);
-
-    let result = mnemonic("INY".as_bytes());
-    assert_parse!(Mnemonic::INY, result);
-
-    let result = mnemonic("JMP".as_bytes());
-    assert_parse!(Mnemonic::JMP, result);
-
-    let result = mnemonic("JSR".as_bytes());
-    assert_parse!(Mnemonic::JSR, result);
-
-    let result = mnemonic("LDA".as_bytes());
-    assert_parse!(Mnemonic::LDA, result);
-
-    let result = mnemonic("LDX".as_bytes());
-    assert_parse!(Mnemonic::LDX, result);
-
-    let result = mnemonic("LDY".as_bytes());
-    assert_parse!(Mnemonic::LDY, result);
-
-    let result = mnemonic("LSR".as_bytes());
-    assert_parse!(Mnemonic::LSR, result);
-
-    let result = mnemonic("NOP".as_bytes());
-    assert_parse!(Mnemonic::NOP, result);
-
-    let result = mnemonic("ORA".as_bytes());
-    assert_parse!(Mnemonic::ORA, result);
-
-    let result = mnemonic("PHA".as_bytes());
-    assert_parse!(Mnemonic::PHA, result);
-
-    let result = mnemonic("PHP".as_bytes());
-    assert_parse!(Mnemonic::PHP, result);
-
-    let result = mnemonic("PLA".as_bytes());
-    assert_parse!(Mnemonic::PLA, result);
-
-    let result = mnemonic("PLP".as_bytes());
-    assert_parse!(Mnemonic::PLP, result);
-
-    let result = mnemonic("ROL".as_bytes());
-    assert_parse!(Mnemonic::ROL, result);
-
-    let result = mnemonic("ROR".as_bytes());
-    assert_parse!(Mnemonic::ROR, result);
-
-    let result = mnemonic("RTI".as_bytes());
-    assert_parse!(Mnemonic::RTI, result);
-
-    let result = mnemonic("RTS".as_bytes());
-    assert_parse!(Mnemonic::RTS, result);
-
-    let result = mnemonic("SBC".as_bytes());
-    assert_parse!(Mnemonic::SBC, result);
-
-    let result = mnemonic("SEC".as_bytes());
-    assert_parse!(Mnemonic::SEC, result);
-
-    let result = mnemonic("SED".as_bytes());
-    assert_parse!(Mnemonic::SED, result);
-
-    let result = mnemonic("SEI".as_bytes());
-    assert_parse!(Mnemonic::SEI, result);
-
-    let result = mnemonic("STA".as_bytes());
-    assert_parse!(Mnemonic::STA, result);
-
-    let result = mnemonic("STX".as_bytes());
-    assert_parse!(Mnemonic::STX, result);
-
-    let result = mnemonic("STY".as_bytes());
-    assert_parse!(Mnemonic::STY, result);
-
-    let result = mnemonic("TAX".as_bytes());
-    assert_parse!(Mnemonic::TAX, result);
-
-    let result = mnemonic("TAY".as_bytes());
-    assert_parse!(Mnemonic::TAY, result);
-
-    let result = mnemonic("TSX".as_bytes());
-    assert_parse!(Mnemonic::TSX, result);
-
-    let result = mnemonic("TXA".as_bytes());
-    assert_parse!(Mnemonic::TXA, result);
-
-    let result = mnemonic("TXS".as_bytes());
-    assert_parse!(Mnemonic::TXS, result);
-
-    let result = mnemonic("TYA".as_bytes());
-    assert_parse!(Mnemonic::TYA, result);
+    assert_mnemonic_parse!("ADC", Mnemonic::ADC);
+    assert_mnemonic_parse!("AND", Mnemonic::AND);
+    assert_mnemonic_parse!("ASL", Mnemonic::ASL);
+    assert_mnemonic_parse!("BCC", Mnemonic::BCC);
+    assert_mnemonic_parse!("BCS", Mnemonic::BCS);
+    assert_mnemonic_parse!("BEQ", Mnemonic::BEQ);
+    assert_mnemonic_parse!("BIT", Mnemonic::BIT);
+    assert_mnemonic_parse!("BMI", Mnemonic::BMI);
+    assert_mnemonic_parse!("BNE", Mnemonic::BNE);
+    assert_mnemonic_parse!("BPL", Mnemonic::BPL);
+    assert_mnemonic_parse!("BRK", Mnemonic::BRK);
+    assert_mnemonic_parse!("BVC", Mnemonic::BVC);
+    assert_mnemonic_parse!("BVS", Mnemonic::BVS);
+    assert_mnemonic_parse!("CLC", Mnemonic::CLC);
+    assert_mnemonic_parse!("CLD", Mnemonic::CLD);
+    assert_mnemonic_parse!("CLI", Mnemonic::CLI);
+    assert_mnemonic_parse!("CLV", Mnemonic::CLV);
+    assert_mnemonic_parse!("CMP", Mnemonic::CMP);
+    assert_mnemonic_parse!("CPX", Mnemonic::CPX);
+    assert_mnemonic_parse!("CPY", Mnemonic::CPY);
+    assert_mnemonic_parse!("DEC", Mnemonic::DEC);
+    assert_mnemonic_parse!("DEX", Mnemonic::DEX);
+    assert_mnemonic_parse!("DEY", Mnemonic::DEY);
+    assert_mnemonic_parse!("EOR", Mnemonic::EOR);
+    assert_mnemonic_parse!("INC", Mnemonic::INC);
+    assert_mnemonic_parse!("INX", Mnemonic::INX);
+    assert_mnemonic_parse!("INY", Mnemonic::INY);
+    assert_mnemonic_parse!("JMP", Mnemonic::JMP);
+    assert_mnemonic_parse!("JSR", Mnemonic::JSR);
+    assert_mnemonic_parse!("LDA", Mnemonic::LDA);
+    assert_mnemonic_parse!("LDX", Mnemonic::LDX);
+    assert_mnemonic_parse!("LDY", Mnemonic::LDY);
+    assert_mnemonic_parse!("LSR", Mnemonic::LSR);
+    assert_mnemonic_parse!("NOP", Mnemonic::NOP);
+    assert_mnemonic_parse!("ORA", Mnemonic::ORA);
+    assert_mnemonic_parse!("PHA", Mnemonic::PHA);
+    assert_mnemonic_parse!("PHP", Mnemonic::PHP);
+    assert_mnemonic_parse!("PLA", Mnemonic::PLA);
+    assert_mnemonic_parse!("PLP", Mnemonic::PLP);
+    assert_mnemonic_parse!("ROL", Mnemonic::ROL);
+    assert_mnemonic_parse!("ROR", Mnemonic::ROR);
+    assert_mnemonic_parse!("RTI", Mnemonic::RTI);
+    assert_mnemonic_parse!("RTS", Mnemonic::RTS);
+    assert_mnemonic_parse!("SBC", Mnemonic::SBC);
+    assert_mnemonic_parse!("SEC", Mnemonic::SEC);
+    assert_mnemonic_parse!("SED", Mnemonic::SED);
+    assert_mnemonic_parse!("SEI", Mnemonic::SEI);
+    assert_mnemonic_parse!("STA", Mnemonic::STA);
+    assert_mnemonic_parse!("STX", Mnemonic::STX);
+    assert_mnemonic_parse!("STY", Mnemonic::STY);
+    assert_mnemonic_parse!("TAX", Mnemonic::TAX);
+    assert_mnemonic_parse!("TAY", Mnemonic::TAY);
+    assert_mnemonic_parse!("TSX", Mnemonic::TSX);
+    assert_mnemonic_parse!("TXA", Mnemonic::TXA);
+    assert_mnemonic_parse!("TXS", Mnemonic::TXS);
+    assert_mnemonic_parse!("TYA", Mnemonic::TYA);
 }
 
 #[test]
 fn parse_accumulator() {
-    let result = addressing_mode("A".as_bytes());
-    assert_parse!(AddressingMode::Accumulator, result);
+    assert_am_parse!("A", AddressingMode::Accumulator);
 }
 
 #[test]
 fn parse_immediate_hex() {
-    let result = addressing_mode("#$1".as_bytes());
-    assert_parse!(AddressingMode::Immediate(0x1, Sign::Inferred), result);
-
-    let result = addressing_mode("#$10".as_bytes());
-    assert_parse!(AddressingMode::Immediate(0x10, Sign::Inferred), result);
-
-    let result = addressing_mode("#$ff".as_bytes());
-    assert_parse!(AddressingMode::Immediate(0xff, Sign::Inferred), result);
-
-    let result = addressing_mode("#$100".as_bytes());
-    assert_parse_fail!(result);
+    println!("parse immediate hex");
+    assert_am_parse!("#$1", AddressingMode::Immediate(0x1, Sign::Implied));
+    assert_am_parse!("#$10", AddressingMode::Immediate(0x10, Sign::Implied));
+    assert_am_parse!("#$ff", AddressingMode::Immediate(0xff, Sign::Implied));
+    assert_parse_fail!(addressing_mode("#$100".as_bytes()));
 }
 
 #[test]
 fn parse_immediate_dec() {
-    let result = addressing_mode("#1".as_bytes());
-    assert_parse!(AddressingMode::Immediate(1, Sign::Inferred), result);
-
-    let result = addressing_mode("#10".as_bytes());
-    assert_parse!(AddressingMode::Immediate(10, Sign::Inferred), result);
-
-    let result = addressing_mode("#255".as_bytes());
-    assert_parse!(AddressingMode::Immediate(255, Sign::Inferred), result);
-
-    let result = addressing_mode("#-10".as_bytes());
-    assert_parse!(AddressingMode::Immediate(10, Sign::Negative), result);
-
-    let result = addressing_mode("#256".as_bytes());
-    assert_parse_fail!(result);
-}
-
-#[test]
-#[ignore]
-fn parse_zero_page_or_relative_hex() {
-    let result = addressing_mode("$ff".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageOrRelative(0xff, Sign::Inferred), result);
-
-    let result = addressing_mode("$0".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageOrRelative(0x0, Sign::Inferred), result);
-
-    let result = addressing_mode("$10".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageOrRelative(0x10, Sign::Inferred), result);
-}
-
-#[test]
-#[ignore]
-fn parse_zero_page_or_relative_dec() {
-    let result = addressing_mode("255".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageOrRelative(255, Sign::Inferred), result);
-
-    let result = addressing_mode("0".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageOrRelative(0, Sign::Inferred), result);
-
-    let result = addressing_mode("10".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageOrRelative(10, Sign::Inferred), result);
-
-    let result = addressing_mode("-10".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageOrRelative(10, Sign::Negative), result);
-}
-
-#[test]
-fn parse_zero_page_x_hex() {
-    let result = addressing_mode("$ff,X".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageX(0xff), result);
-
-    let result = addressing_mode("$0,X".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageX(0x0), result);
-
-    let result = addressing_mode("$10,X".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageX(0x10), result);
-}
-
-#[test]
-fn parse_zero_page_x_dec() {
-    let result = addressing_mode("255,X".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageX(255), result);
-
-    let result = addressing_mode("0,X".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageX(0), result);
-
-    let result = addressing_mode("10,X".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageX(10), result);
-}
-
-#[test]
-fn parse_zero_page_y_hex() {
-    let result = addressing_mode("$ff,Y".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageY(0xff), result);
-
-    let result = addressing_mode("$0,Y".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageY(0x0), result);
-
-    let result = addressing_mode("$10,Y".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageY(0x10), result);
-}
-
-#[test]
-fn parse_zero_page_y_dec() {
-    let result = addressing_mode("255,Y".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageY(255), result);
-
-    let result = addressing_mode("0,Y".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageY(0), result);
-
-    let result = addressing_mode("10,Y".as_bytes());
-    assert_parse!(AddressingMode::ZeroPageY(10), result);
-}
-
-#[test]
-#[ignore]
-fn parse_absolute_hex() {
-    let result = addressing_mode("$ffff".as_bytes());
-    assert_parse!(AddressingMode::Absolute(0xffff), result);
-
-    let result = addressing_mode("$1000".as_bytes());
-    assert_parse!(AddressingMode::Absolute(0x1000), result);
-
-    let result = addressing_mode("$100".as_bytes());
-    assert_parse!(AddressingMode::Absolute(0x100), result);
-}
-
-#[test]
-#[ignore]
-fn parse_absolute_dec() {
-    let result = addressing_mode("65535".as_bytes());
-    assert_parse!(AddressingMode::Absolute(65535), result);
-
-    let result = addressing_mode("1000".as_bytes());
-    assert_parse!(AddressingMode::Absolute(1000), result);
-
-    let result = addressing_mode("256".as_bytes());
-    assert_parse!(AddressingMode::Absolute(256), result);
+    println!("parse immediate dec");
+    assert_am_parse!("#1", AddressingMode::Immediate(1, Sign::Implied));
+    assert_am_parse!("#10", AddressingMode::Immediate(10, Sign::Implied));
+    assert_am_parse!("#255", AddressingMode::Immediate(255, Sign::Implied));
+    assert_am_parse!("#-10", AddressingMode::Immediate(10, Sign::Negative));
+    assert_parse_fail!(addressing_mode("#256".as_bytes()));
 }
 
 #[test]
 fn parse_absolute_x_hex() {
-    let result = addressing_mode("$ffff,X".as_bytes());
-    assert_parse!(AddressingMode::AbsoluteX(0xffff), result);
-
-    let result = addressing_mode("$1000,X".as_bytes());
-    assert_parse!(AddressingMode::AbsoluteX(0x1000), result);
-
-    let result = addressing_mode("$100,X".as_bytes());
-    assert_parse!(AddressingMode::AbsoluteX(0x100), result);
+    assert_am_parse!("$ffff,X", AddressingMode::AbsoluteX(0xffff));
+    assert_am_parse!("$1000,X", AddressingMode::AbsoluteX(0x1000));
+    assert_am_parse!("$100,X", AddressingMode::AbsoluteX(0x100));
 }
 
 #[test]
 fn parse_absolute_x_dec() {
-    let result = addressing_mode("65535,X".as_bytes());
-    assert_parse!(AddressingMode::AbsoluteX(65535), result);
-
-    let result = addressing_mode("1000,X".as_bytes());
-    assert_parse!(AddressingMode::AbsoluteX(1000), result);
-
-    let result = addressing_mode("256,X".as_bytes());
-    assert_parse!(AddressingMode::AbsoluteX(256), result);
+    assert_am_parse!("65535,X", AddressingMode::AbsoluteX(65535));
+    assert_am_parse!("1000,X", AddressingMode::AbsoluteX(1000));
+    assert_am_parse!("256,X", AddressingMode::AbsoluteX(256));
 }
 
 #[test]
 fn parse_absolute_y_hex() {
-    let result = addressing_mode("$ffff,Y".as_bytes());
-    assert_parse!(AddressingMode::AbsoluteY(0xffff), result);
-
-    let result = addressing_mode("$1000,Y".as_bytes());
-    assert_parse!(AddressingMode::AbsoluteY(0x1000), result);
-
-    let result = addressing_mode("$100,Y".as_bytes());
-    assert_parse!(AddressingMode::AbsoluteY(0x100), result);
+    assert_am_parse!("$ffff,Y", AddressingMode::AbsoluteY(0xffff));
+    assert_am_parse!("$1000,Y", AddressingMode::AbsoluteY(0x1000));
+    assert_am_parse!("$100,Y", AddressingMode::AbsoluteY(0x100));
 }
 
 #[test]
 fn parse_absolute_y_dec() {
-    let result = addressing_mode("65535,Y".as_bytes());
-    assert_parse!(AddressingMode::AbsoluteY(65535), result);
+    assert_am_parse!("65535,Y", AddressingMode::AbsoluteY(65535));
+    assert_am_parse!("1000,Y", AddressingMode::AbsoluteY(1000));
+    assert_am_parse!("256,Y", AddressingMode::AbsoluteY(256));
+}
 
-    let result = addressing_mode("1000,Y".as_bytes());
-    assert_parse!(AddressingMode::AbsoluteY(1000), result);
+#[test]
+fn parse_indexed_indirect_hex() {
+    assert_am_parse!("($ff,X)", AddressingMode::IndexedIndirect(0xff));
+    assert_am_parse!("($0,X)", AddressingMode::IndexedIndirect(0x0));
+    assert_am_parse!("($10,X)", AddressingMode::IndexedIndirect(0x10));
+}
 
-    let result = addressing_mode("256,Y".as_bytes());
-    assert_parse!(AddressingMode::AbsoluteY(256), result);
+#[test]
+fn parse_indexed_indirect_dec() {
+    assert_am_parse!("(255,X)", AddressingMode::IndexedIndirect(255));
+    assert_am_parse!("(0,X)", AddressingMode::IndexedIndirect(0));
+    assert_am_parse!("(10,X)", AddressingMode::IndexedIndirect(10));
+}
+
+#[test]
+fn parse_indirect_indexed_hex() {
+    assert_am_parse!("($ff),Y", AddressingMode::IndirectIndexed(0xff));
+    assert_am_parse!("($0),Y", AddressingMode::IndirectIndexed(0x0));
+    assert_am_parse!("($10),Y", AddressingMode::IndirectIndexed(0x10));
+}
+
+#[test]
+fn parse_indirect_indexed_dec() {
+    assert_am_parse!("(255),Y", AddressingMode::IndirectIndexed(255));
+    assert_am_parse!("(0),Y", AddressingMode::IndirectIndexed(0));
+    assert_am_parse!("(10),Y", AddressingMode::IndirectIndexed(10));
+}
+
+#[test]
+fn parse_indirect_hex() {
+    assert_am_parse!("($ffff)", AddressingMode::Indirect(0xffff));
+    assert_am_parse!("($00)", AddressingMode::Indirect(0x0));
+    assert_am_parse!("($100)", AddressingMode::Indirect(0x100));
+}
+
+#[test]
+fn parse_indirect_dec() {
+    assert_am_parse!("(65535)", AddressingMode::Indirect(65535));
+    assert_am_parse!("(0)", AddressingMode::Indirect(0));
+    assert_am_parse!("(10)", AddressingMode::Indirect(10));
+}
+#[test]
+fn parse_zero_page_or_relative_hex() {
+    assert_am_parse!("$ff",
+                     AddressingMode::ZeroPageOrRelative(0xff, Sign::Implied));
+    assert_am_parse!("$0", AddressingMode::ZeroPageOrRelative(0x0, Sign::Implied));
+    assert_am_parse!("$10",
+                     AddressingMode::ZeroPageOrRelative(0x10, Sign::Implied));
+}
+
+#[test]
+fn parse_zero_page_or_relative_dec() {
+    assert_am_parse!("255",
+                     AddressingMode::ZeroPageOrRelative(255, Sign::Implied));
+    assert_am_parse!("0", AddressingMode::ZeroPageOrRelative(0, Sign::Implied));
+    assert_am_parse!("10", AddressingMode::ZeroPageOrRelative(10, Sign::Implied));
+    assert_am_parse!("-10",
+                     AddressingMode::ZeroPageOrRelative(10, Sign::Negative));
+}
+
+#[test]
+fn parse_zero_page_x_hex() {
+    assert_am_parse!("$ff,X", AddressingMode::ZeroPageX(0xff));
+    assert_am_parse!("$0,X", AddressingMode::ZeroPageX(0x0));
+    assert_am_parse!("$10,X", AddressingMode::ZeroPageX(0x10));
+}
+
+#[test]
+fn parse_zero_page_x_dec() {
+    assert_am_parse!("255,X", AddressingMode::ZeroPageX(255));
+    assert_am_parse!("0,X", AddressingMode::ZeroPageX(0));
+    assert_am_parse!("10,X", AddressingMode::ZeroPageX(10));
+}
+
+#[test]
+fn parse_zero_page_y_hex() {
+    assert_am_parse!("$ff,Y", AddressingMode::ZeroPageY(0xff));
+    assert_am_parse!("$0,Y", AddressingMode::ZeroPageY(0x0));
+    assert_am_parse!("$10,Y", AddressingMode::ZeroPageY(0x10));
+}
+
+#[test]
+fn parse_zero_page_y_dec() {
+    assert_am_parse!("255,Y", AddressingMode::ZeroPageY(255));
+    assert_am_parse!("0,Y", AddressingMode::ZeroPageY(0));
+    assert_am_parse!("10,Y", AddressingMode::ZeroPageY(10));
+}
+
+#[test]
+fn parse_absolute_hex() {
+    assert_am_parse!("$ffff", AddressingMode::Absolute(0xffff));
+    assert_am_parse!("$1000", AddressingMode::Absolute(0x1000));
+    assert_am_parse!("$100", AddressingMode::Absolute(0x100));
+}
+
+#[test]
+fn parse_absolute_dec() {
+    assert_am_parse!("65535", AddressingMode::Absolute(65535));
+    assert_am_parse!("1000", AddressingMode::Absolute(1000));
+    assert_am_parse!("256", AddressingMode::Absolute(256));
 }
