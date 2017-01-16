@@ -3,7 +3,8 @@ use super::assemble;
 macro_rules! assert_assemble_err {
     ( $ asm : expr ) => {
         let mut buf = Vec::<u8>::new();
-        match assemble($asm, &mut buf) {
+        let asm = $asm;
+        match assemble(asm.as_bytes(), &mut buf) {
             Ok(_) => panic!("Expected error"),
             _ => ()
         }
@@ -14,7 +15,7 @@ macro_rules! assert_assemble {
     ( $ asm : expr , $ expected : expr ) => {{
         let asm = $asm;
         let mut buf = Vec::<u8>::new();
-        match assemble(asm, &mut buf) {
+        match assemble(asm.as_bytes(), &mut buf) {
             Err(msg) => panic!(format!("Failed to assemble '{}': {}", asm, msg)),
             _ => {
                 let expected = $expected;

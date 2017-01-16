@@ -3,13 +3,15 @@ mod tests;
 
 use nom::IResult;
 use parser::parse_lines;
-use std::io::Write;
+use std::io::{Read, Write};
 use tokens::*;
 
 type AssembleResult = Result<(), String>;
 
-pub fn assemble<T: Write>(input: &str, writer: &mut T) -> AssembleResult {
-    match parse_lines(input.as_bytes()) {
+pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResult {
+    let mut buf = Vec::<u8>::new();
+    input.read_to_end(&mut buf);
+    match parse_lines(&buf) {
         IResult::Error(_) => Err("An error occurred while parsing".to_string()),
         IResult::Incomplete(_) => {
             Err("An error occurred while parsing. Need more input.".to_string())
