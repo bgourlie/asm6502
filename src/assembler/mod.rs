@@ -21,8 +21,9 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
             for opcode in opcodes {
                 let OpCode(mnemonic, am) = opcode;
                 match mnemonic {
-                    Mnemonic::Adc => res = write_adc(am, writer),
-                    Mnemonic::And => res = write_and(am, writer),
+                    Mnemonic::Adc => res = adc(am, writer),
+                    Mnemonic::And => res = and(am, writer),
+                    Mnemonic::Asl => res = asl(am, writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
@@ -34,88 +35,101 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
     }
 }
 
-fn write_adc<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+fn adc<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
-        AddressingMode::Immediate(val, sign) => {
-            write_byte(0x69, writer).and_then(|_| write_signed(val, sign, writer))
-        }
-        AddressingMode::ZeroPageOrRelative(addr, sign) => {
-            err_if_negative(sign)
-                .and_then(|_| write_byte(0x65, writer).and_then(|_| write_byte(addr, writer)))
-        }
-        AddressingMode::ZeroPageX(addr) => {
-            write_byte(0x75, writer).and_then(|_| write_byte(addr, writer))
-        }
-        AddressingMode::Absolute(addr) => {
-            write_byte(0x6d, writer).and_then(|_| write_word(addr, writer))
-        }
-        AddressingMode::AbsoluteX(addr) => {
-            write_byte(0x7d, writer).and_then(|_| write_word(addr, writer))
-        }
-        AddressingMode::AbsoluteY(addr) => {
-            write_byte(0x79, writer).and_then(|_| write_word(addr, writer))
-        }
-        AddressingMode::IndexedIndirect(addr) => {
-            write_byte(0x61, writer).and_then(|_| write_byte(addr, writer))
-        }
-        AddressingMode::IndirectIndexed(addr) => {
-            write_byte(0x71, writer).and_then(|_| write_byte(addr, writer))
-        }
+        AddressingMode::Immediate(val, sign) => immediate(0x69, val, sign, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x65, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => zero_page_x(0x75, addr, writer),
+        AddressingMode::Absolute(addr) => absolute(0x6d, addr, writer),
+        AddressingMode::AbsoluteX(addr) => absolute_x(0x7d, addr, writer),
+        AddressingMode::AbsoluteY(addr) => absolute_y(0x79, addr, writer),
+        AddressingMode::IndexedIndirect(addr) => indexed_indirect(0x61, addr, writer),
+        AddressingMode::IndirectIndexed(addr) => indirect_indexed(0x71, addr, writer),
         _ => Err(format!("Unexpected operand encountered for ADC: {:?}", am)),
     }
 }
 
-fn write_and<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+fn and<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
-        AddressingMode::Immediate(val, sign) => {
-            write_byte(0x29, writer).and_then(|_| write_signed(val, sign, writer))
-        }
-        AddressingMode::ZeroPageOrRelative(addr, sign) => {
-            err_if_negative(sign)
-                .and_then(|_| write_byte(0x25, writer).and_then(|_| write_byte(addr, writer)))
-        }
-        AddressingMode::ZeroPageX(addr) => {
-            write_byte(0x35, writer).and_then(|_| write_byte(addr, writer))
-        }
-        AddressingMode::Absolute(addr) => {
-            write_byte(0x2d, writer).and_then(|_| write_word(addr, writer))
-        }
-        AddressingMode::AbsoluteX(addr) => {
-            write_byte(0x3d, writer).and_then(|_| write_word(addr, writer))
-        }
-        AddressingMode::AbsoluteY(addr) => {
-            write_byte(0x39, writer).and_then(|_| write_word(addr, writer))
-        }
-        AddressingMode::IndexedIndirect(addr) => {
-            write_byte(0x21, writer).and_then(|_| write_byte(addr, writer))
-        }
-        AddressingMode::IndirectIndexed(addr) => {
-            write_byte(0x31, writer).and_then(|_| write_byte(addr, writer))
-        }
+        AddressingMode::Immediate(val, sign) => immediate(0x29, val, sign, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x25, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => zero_page_x(0x35, addr, writer),
+        AddressingMode::Absolute(addr) => absolute(0x2d, addr, writer),
+        AddressingMode::AbsoluteX(addr) => absolute_x(0x3d, addr, writer),
+        AddressingMode::AbsoluteY(addr) => absolute_y(0x39, addr, writer),
+        AddressingMode::IndexedIndirect(addr) => indexed_indirect(0x21, addr, writer),
+        AddressingMode::IndirectIndexed(addr) => indirect_indexed(0x31, addr, writer),
         _ => Err(format!("Unexpected operand encountered for AND: {:?}", am)),
     }
 }
 
-fn write_signed<T: Write>(val: u8, sign: Sign, writer: &mut T) -> AssembleResult {
+fn asl<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::Accumulator => accumulator(0x0a, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x06, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => zero_page_x(0x16, addr, writer),
+        AddressingMode::Absolute(addr) => absolute(0x0e, addr, writer),
+        AddressingMode::AbsoluteX(addr) => absolute_x(0x1e, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for ASL: {:?}", am)),
+    }
+}
+
+fn accumulator<T: Write>(opcode: u8, writer: &mut T) -> AssembleResult {
+    byte(opcode, writer)
+}
+
+fn immediate<T: Write>(opcode: u8, val: u8, sign: Sign, writer: &mut T) -> AssembleResult {
+    byte(opcode, writer).and_then(|_| signed(val, sign, writer))
+}
+
+fn zero_page<T: Write>(opcode: u8, addr: u8, sign: Sign, writer: &mut T) -> AssembleResult {
+    err_if_negative(sign).and_then(|_| byte(opcode, writer).and_then(|_| byte(addr, writer)))
+}
+
+fn zero_page_x<T: Write>(opcode: u8, addr: u8, writer: &mut T) -> AssembleResult {
+    byte(opcode, writer).and_then(|_| byte(addr, writer))
+}
+
+fn absolute<T: Write>(opcode: u8, addr: u16, writer: &mut T) -> AssembleResult {
+    byte(opcode, writer).and_then(|_| word(addr, writer))
+}
+
+fn absolute_x<T: Write>(opcode: u8, addr: u16, writer: &mut T) -> AssembleResult {
+    byte(opcode, writer).and_then(|_| word(addr, writer))
+}
+
+fn absolute_y<T: Write>(opcode: u8, addr: u16, writer: &mut T) -> AssembleResult {
+    byte(opcode, writer).and_then(|_| word(addr, writer))
+}
+
+fn indexed_indirect<T: Write>(opcode: u8, addr: u8, writer: &mut T) -> AssembleResult {
+    byte(opcode, writer).and_then(|_| byte(addr, writer))
+}
+
+fn indirect_indexed<T: Write>(opcode: u8, addr: u8, writer: &mut T) -> AssembleResult {
+    byte(opcode, writer).and_then(|_| byte(addr, writer))
+}
+
+fn signed<T: Write>(val: u8, sign: Sign, writer: &mut T) -> AssembleResult {
     match sign {
-        Sign::Implied => write_byte(val, writer),
+        Sign::Implied => byte(val, writer),
         Sign::Negative => {
             if val > 127 {
                 Err("Signed byte overflow".to_string())
             } else {
-                write_byte(val, writer)
+                byte(val, writer)
             }
         }
     }
 }
 
-fn write_byte<T: Write>(val: u8, writer: &mut T) -> AssembleResult {
+fn byte<T: Write>(val: u8, writer: &mut T) -> AssembleResult {
     writer.write(&[val])
         .map(|_| ())
         .map_err(|_| "An error occurred while writing to the buffer".to_string())
 }
 
-fn write_word<T: Write>(val: u16, writer: &mut T) -> AssembleResult {
+fn word<T: Write>(val: u16, writer: &mut T) -> AssembleResult {
     let low_byte = (val & 0xff) as u8;
     let high_byte = ((val >> 8) & 0xff) as u8;
     writer.write(&[low_byte, high_byte])

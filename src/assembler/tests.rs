@@ -111,3 +111,42 @@ fn and() {
     // ZeroPageY
     assert_assemble_err!("AND $44,Y");
 }
+
+#[test]
+fn asl() {
+    // Absolute
+    assert_assemble!("ASL $4400", &[0x0e, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble!("ASL $4400,X", &[0x1e, 0x00, 0x44]);
+
+    // AbsoluteY
+    assert_assemble_err!("ASL $4400,Y");
+
+    // Accumulator
+    assert_assemble!("ASL A", &[0x0a]);
+
+    // IndexedIndirect
+    assert_assemble_err!("ASL ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("ASL ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("ASL #$44");
+
+    // Implied
+    assert_assemble_err!("ASL");
+
+    // Relative
+    assert_assemble_err!("ASL -44");
+
+    // ZeroPage
+    assert_assemble!("ASL $44", &[0x06, 0x44]);
+
+    // ZeroPageX
+    assert_assemble!("ASL $44,X", &[0x16, 0x44]);
+
+    // ZeroPageY
+    assert_assemble_err!("ASL $44,Y");
+}
