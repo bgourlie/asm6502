@@ -10,7 +10,7 @@ type AssembleResult = Result<(), String>;
 
 pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResult {
     let mut buf = Vec::<u8>::new();
-    input.read_to_end(&mut buf);
+    input.read_to_end(&mut buf).map_err(|_| "Error reading input".to_string())?;
     match parse_lines(&buf) {
         IResult::Error(_) => Err("An error occurred while parsing".to_string()),
         IResult::Incomplete(_) => {
