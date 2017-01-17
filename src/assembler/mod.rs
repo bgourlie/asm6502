@@ -24,6 +24,7 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Adc => res = adc(am, writer),
                     Mnemonic::And => res = and(am, writer),
                     Mnemonic::Asl => res = asl(am, writer),
+                    Mnemonic::Bit => res = bit(am, writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
@@ -71,6 +72,14 @@ fn asl<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
         AddressingMode::Absolute(addr) => absolute(0x0e, addr, writer),
         AddressingMode::AbsoluteX(addr) => absolute_x(0x1e, addr, writer),
         _ => Err(format!("Unexpected operand encountered for ASL: {:?}", am)),
+    }
+}
+
+fn bit<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x24, addr, sign, writer),
+        AddressingMode::Absolute(addr) => absolute(0x2c, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for BIT: {:?}", am)),
     }
 }
 

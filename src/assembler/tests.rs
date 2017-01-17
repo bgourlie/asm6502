@@ -150,3 +150,42 @@ fn asl() {
     // ZeroPageY
     assert_assemble_err!("ASL $44,Y");
 }
+
+#[test]
+fn bit() {
+    // Absolute
+    assert_assemble!("BIT $4400", &[0x2c, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble_err!("BIT $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("BIT $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("BIT A");
+
+    // IndexedIndirect
+    assert_assemble_err!("BIT ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("BIT ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("BIT #$44");
+
+    // Implied
+    assert_assemble_err!("BIT");
+
+    // Relative
+    assert_assemble_err!("BIT -44");
+
+    // ZeroPage
+    assert_assemble!("BIT $44", &[0x24, 0x44]);
+
+    // ZeroPageX
+    assert_assemble_err!("BIT $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("BIT $44,Y");
+}
