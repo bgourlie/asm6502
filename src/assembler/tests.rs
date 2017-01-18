@@ -189,3 +189,291 @@ fn bit() {
     // ZeroPageY
     assert_assemble_err!("BIT $44,Y");
 }
+
+#[test]
+fn bcc() {
+    // Absolute
+    assert_assemble_err!("BCC $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("BCC $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("BCC $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("BCC A");
+
+    // IndexedIndirect
+    assert_assemble_err!("BCC ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("BCC ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("BCC #$44");
+
+    // Implied
+    assert_assemble_err!("BCC");
+
+    // Relative
+    assert_assemble!("BCC -44", &[0x90, 0xd4]);
+
+    // ZeroPageX
+    assert_assemble_err!("BCC $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("BCC $44,Y");
+}
+
+#[test]
+fn bcs() {
+    // Absolute
+    assert_assemble_err!("BCS $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("BCS $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("BCS $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("BCS A");
+
+    // IndexedIndirect
+    assert_assemble_err!("BCS ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("BCS ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("BCS #$44");
+
+    // Implied
+    assert_assemble_err!("BCS");
+
+    // Relative
+    assert_assemble!("BCS -44", &[0xb0, 0xd4]);
+
+    // ZeroPageX
+    assert_assemble_err!("BCS $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("BCS $44,Y");
+}
+
+#[test]
+fn beq() {
+    // Absolute
+    assert_assemble_err!("BEQ $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("BEQ $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("BEQ $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("BEQ A");
+
+    // IndexedIndirect
+    assert_assemble_err!("BEQ ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("BEQ ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("BEQ #$44");
+
+    // Implied
+    assert_assemble_err!("BEQ");
+
+    // Relative
+    assert_assemble!("BEQ -44", &[0xf0, 0xd4]);
+
+    // ZeroPageX
+    assert_assemble_err!("BEQ $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("BEQ $44,Y");
+}
+
+#[test]
+fn bmi() {
+    // Absolute
+    assert_assemble_err!("BMI $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("BMI $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("BMI $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("BMI A");
+
+    // IndexedIndirect
+    assert_assemble_err!("BMI ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("BMI ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("BMI #$44");
+
+    // Implied
+    assert_assemble_err!("BMI");
+
+    // Relative
+    assert_assemble!("BMI -44", &[0x30, 0xd4]);
+
+    // ZeroPageX
+    assert_assemble_err!("BMI $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("BMI $44,Y");
+}
+
+#[test]
+fn bne() {
+    // Absolute
+    assert_assemble_err!("BNE $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("BNE $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("BNE $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("BNE A");
+
+    // IndexedIndirect
+    assert_assemble_err!("BNE ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("BNE ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("BNE #$44");
+
+    // Implied
+    assert_assemble_err!("BNE");
+
+    // Relative
+    assert_assemble!("BNE -44", &[0xd0, 0xd4]);
+
+    // ZeroPageX
+    assert_assemble_err!("BNE $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("BNE $44,Y");
+}
+
+#[test]
+fn bpl() {
+    // Absolute
+    assert_assemble_err!("BPL $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("BPL $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("BPL $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("BPL A");
+
+    // IndexedIndirect
+    assert_assemble_err!("BPL ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("BPL ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("BPL #$44");
+
+    // Implied
+    assert_assemble_err!("BPL");
+
+    // Relative
+    assert_assemble!("BPL -44", &[0x10, 0xd4]);
+
+    // ZeroPageX
+    assert_assemble_err!("BPL $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("BPL $44,Y");
+}
+
+#[test]
+fn bvc() {
+    // Absolute
+    assert_assemble_err!("BVC $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("BVC $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("BVC $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("BVC A");
+
+    // IndexedIndirect
+    assert_assemble_err!("BVC ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("BVC ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("BVC #$44");
+
+    // Implied
+    assert_assemble_err!("BVC");
+
+    // Relative
+    assert_assemble!("BVC -44", &[0x50, 0xd4]);
+
+    // ZeroPageX
+    assert_assemble_err!("BVC $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("BVC $44,Y");
+}
+
+#[test]
+fn bvs() {
+    // Absolute
+    assert_assemble_err!("BVS $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("BVS $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("BVS $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("BVS A");
+
+    // IndexedIndirect
+    assert_assemble_err!("BVS ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("BVS ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("BVS #$44");
+
+    // Implied
+    assert_assemble_err!("BVS");
+
+    // Relative
+    assert_assemble!("BVS -44", &[0x70, 0xd4]);
+
+    // ZeroPageX
+    assert_assemble_err!("BVS $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("BVS $44,Y");
+}

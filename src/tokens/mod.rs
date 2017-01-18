@@ -61,6 +61,7 @@ pub enum Mnemonic {
 #[derive(Debug, PartialEq, Eq)]
 pub enum Sign {
     Implied,
+    Positive,
     Negative,
 }
 

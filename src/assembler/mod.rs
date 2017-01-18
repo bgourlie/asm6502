@@ -10,11 +10,11 @@ type AssembleResult = Result<(), String>;
 
 pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResult {
     let mut buf = Vec::<u8>::new();
-    input.read_to_end(&mut buf).map_err(|_| "Error reading input".to_string())?;
+    input.read_to_end(&mut buf).map_err(|_| "Error reading input".to_owned())?;
     match parse_lines(&buf) {
-        IResult::Error(_) => Err("An error occurred while parsing".to_string()),
+        IResult::Error(_) => Err("An error occurred while parsing".to_owned()),
         IResult::Incomplete(_) => {
-            Err("An error occurred while parsing. Need more input.".to_string())
+            Err("An error occurred while parsing. Need more input.".to_owned())
         }
         IResult::Done(_, opcodes) => {
             let mut res: AssembleResult = Ok(());
@@ -25,6 +25,14 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::And => res = and(am, writer),
                     Mnemonic::Asl => res = asl(am, writer),
                     Mnemonic::Bit => res = bit(am, writer),
+                    Mnemonic::Bcc => res = relative(0x90, am, "BCC", writer),
+                    Mnemonic::Bcs => res = relative(0xb0, am, "BCS", writer),
+                    Mnemonic::Beq => res = relative(0xf0, am, "BEQ", writer),
+                    Mnemonic::Bmi => res = relative(0x30, am, "BMI", writer),
+                    Mnemonic::Bne => res = relative(0xd0, am, "BNE", writer),
+                    Mnemonic::Bpl => res = relative(0x10, am, "BPL", writer),
+                    Mnemonic::Bvc => res = relative(0x50, am, "BVC", writer),
+                    Mnemonic::Bvs => res = relative(0x70, am, "BVS", writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
@@ -119,14 +127,39 @@ fn indirect_indexed<T: Write>(opcode: u8, addr: u8, writer: &mut T) -> AssembleR
     byte(opcode, writer).and_then(|_| byte(addr, writer))
 }
 
+fn relative<T: Write>(opcode: u8,
+                      am: AddressingMode,
+                      mnemonic: &'static str,
+                      writer: &mut T)
+                      -> AssembleResult {
+    if let AddressingMode::ZeroPageOrRelative(offset, sign) = am {
+        let sign = if sign == Sign::Implied {
+            Sign::Positive
+        } else {
+            Sign::Negative
+        };
+        byte(opcode, writer).and_then(|_| signed(offset, sign, writer))
+    } else {
+        Err(format!("Unexpected operand encountered for {}: {:?}", mnemonic, am))
+    }
+}
+
 fn signed<T: Write>(val: u8, sign: Sign, writer: &mut T) -> AssembleResult {
     match sign {
         Sign::Implied => byte(val, writer),
-        Sign::Negative => {
+        Sign::Positive => {
             if val > 127 {
-                Err("Signed byte overflow".to_string())
+                Err("Signed byte overflow".to_owned())
             } else {
                 byte(val, writer)
+            }
+        }
+        Sign::Negative => {
+            if val > 128 {
+                Err("Signed byte overflow".to_owned())
+            } else {
+                let val = !val as u16 + 1;
+                byte(val as u8, writer)
             }
         }
     }
@@ -135,7 +168,7 @@ fn signed<T: Write>(val: u8, sign: Sign, writer: &mut T) -> AssembleResult {
 fn byte<T: Write>(val: u8, writer: &mut T) -> AssembleResult {
     writer.write(&[val])
         .map(|_| ())
-        .map_err(|_| "An error occurred while writing to the buffer".to_string())
+        .map_err(|_| "An error occurred while writing to the buffer".to_owned())
 }
 
 fn word<T: Write>(val: u16, writer: &mut T) -> AssembleResult {
@@ -143,12 +176,12 @@ fn word<T: Write>(val: u16, writer: &mut T) -> AssembleResult {
     let high_byte = ((val >> 8) & 0xff) as u8;
     writer.write(&[low_byte, high_byte])
         .map(|_| ())
-        .map_err(|_| "An error occurred while writing to the buffer".to_string())
+        .map_err(|_| "An error occurred while writing to the buffer".to_owned())
 }
 
 fn err_if_negative(sign: Sign) -> AssembleResult {
     if sign == Sign::Negative {
-        Err("Unexpected signed operand".to_string())
+        Err("Unexpected signed operand".to_owned())
     } else {
         Ok(())
     }
