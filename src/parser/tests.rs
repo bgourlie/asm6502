@@ -197,7 +197,8 @@ fn parse_indirect_dec() {
 fn parse_zero_page_or_relative_hex() {
     assert_am_parse!(" $ff",
                      AddressingMode::ZeroPageOrRelative(0xff, Sign::Implied));
-    assert_am_parse!(" $0", AddressingMode::ZeroPageOrRelative(0x0, Sign::Implied));
+    assert_am_parse!(" $0",
+                     AddressingMode::ZeroPageOrRelative(0x0, Sign::Implied));
     assert_am_parse!(" $10",
                      AddressingMode::ZeroPageOrRelative(0x10, Sign::Implied));
 }

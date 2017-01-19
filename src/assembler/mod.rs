@@ -33,8 +33,10 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Bpl => res = relative(0x10, am, "BPL", writer),
                     Mnemonic::Bvc => res = relative(0x50, am, "BVC", writer),
                     Mnemonic::Bvs => res = relative(0x70, am, "BVS", writer),
-                    Mnemonic::Brk => res = implied(0x00, am, "BRK", writer),
+                    Mnemonic::Brk => res = brk(am, writer),
                     Mnemonic::Cmp => res = cmp(am, writer),
+                    Mnemonic::Cpx => res = cpx(am, writer),
+                    Mnemonic::Cpy => res = cpy(am, writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
@@ -93,6 +95,11 @@ fn bit<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+fn brk<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    // BRK is a 1 byte instruction but is followed by a padding byte.
+    implied(0x0, am, "BRK", writer).and_then(|_| byte(0x0, writer))
+}
+
 fn cmp<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(0xc9, val, sign, writer),
@@ -104,6 +111,24 @@ fn cmp<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
         AddressingMode::IndexedIndirect(addr) => indexed_indirect(0xc1, addr, writer),
         AddressingMode::IndirectIndexed(addr) => indirect_indexed(0xd1, addr, writer),
         _ => Err(format!("Unexpected operand encountered for CMP: {:?}", am)),
+    }
+}
+
+fn cpx<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::Immediate(val, sign) => immediate(0xe0, val, sign, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0xe4, addr, sign, writer),
+        AddressingMode::Absolute(addr) => absolute(0xec, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for CPX: {:?}", am)),
+    }
+}
+
+fn cpy<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::Immediate(val, sign) => immediate(0xc0, val, sign, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0xc4, addr, sign, writer),
+        AddressingMode::Absolute(addr) => absolute(0xcc, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for CPY: {:?}", am)),
     }
 }
 
@@ -161,10 +186,10 @@ fn relative<T: Write>(opcode: u8,
 }
 
 fn implied<T: Write>(opcode: u8,
-                      am: AddressingMode,
-                      mnemonic: &'static str,
-                      writer: &mut T)
-                      -> AssembleResult {
+                     am: AddressingMode,
+                     mnemonic: &'static str,
+                     writer: &mut T)
+                     -> AssembleResult {
     if let AddressingMode::Implied = am {
         byte(opcode, writer)
     } else {

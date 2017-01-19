@@ -502,10 +502,13 @@ fn brk() {
     assert_assemble_err!("BRK #$44");
 
     // Implied
-    assert_assemble!("BRK\n", &[0x0]);
+    assert_assemble!("BRK\n", &[0x0, 0x0]);
 
     // Relative
     assert_assemble_err!("BRK -44");
+
+    // ZeroPage
+    assert_assemble_err!("BRK $44");
 
     // ZeroPageX
     assert_assemble_err!("BRK $44,X");
@@ -540,6 +543,9 @@ fn cmp() {
     // Implied
     assert_assemble_err!("CMP\n");
 
+    // ZeroPage
+    assert_assemble!("CMP $44", &[0xc5, 0x44]);
+
     // Relative
     assert_assemble_err!("CMP -44");
 
@@ -548,4 +554,82 @@ fn cmp() {
 
     // ZeroPageY
     assert_assemble_err!("CMP $44,Y");
+}
+
+#[test]
+fn cpx() {
+    // Absolute
+    assert_assemble!("CPX $4400", &[0xec, 0x0, 0x44]);
+
+    // AbsoluteX
+    assert_assemble_err!("CPX $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("CPX $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("CPX A");
+
+    // IndexedIndirect
+    assert_assemble_err!("CPX ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("CPX ($44),Y");
+
+    // Immediate
+    assert_assemble!("CPX #$44", &[0xe0, 0x44]);
+
+    // Implied
+    assert_assemble_err!("CPX\n");
+
+    // Relative
+    assert_assemble_err!("CPX -44");
+
+    // ZeroPage
+    assert_assemble!("CPX $44", &[0xe4, 0x44]);
+
+    // ZeroPageX
+    assert_assemble_err!("CPX $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("CPX $44,Y");
+}
+
+#[test]
+fn cpy() {
+    // Absolute
+    assert_assemble!("CPY $4400", &[0xcc, 0x0, 0x44]);
+
+    // AbsoluteX
+    assert_assemble_err!("CPY $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("CPY $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("CPY A");
+
+    // IndexedIndirect
+    assert_assemble_err!("CPY ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("CPY ($44),Y");
+
+    // Immediate
+    assert_assemble!("CPY #$44", &[0xc0, 0x44]);
+
+    // Implied
+    assert_assemble_err!("CPY\n");
+
+    // Relative
+    assert_assemble_err!("CPY -44");
+
+    // ZeroPage
+    assert_assemble!("CPY $44", &[0xc4, 0x44]);
+
+    // ZeroPageX
+    assert_assemble_err!("CPY $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("CPY $44,Y");
 }
