@@ -8,7 +8,6 @@ named!(pub parse_lines <Vec<OpCode> >, separated_list!(line_ending, opcode));
 
 named!(opcode <OpCode>, do_parse!(
         mnemonic: mnemonic >>
-        space >>
         am: addressing_mode >>
         (OpCode(mnemonic, am))
     )
@@ -100,6 +99,7 @@ named!(am_implied <AddressingMode>,
 
 named!(am_indirect <AddressingMode>,
     do_parse!(
+        space >>
         word: delimited!(tag!("("), alt!(parse_word_hex | dec_u16), tag!(")")) >>
         not!(tag!(",")) >>
         (AddressingMode::Indirect(word))
@@ -108,6 +108,7 @@ named!(am_indirect <AddressingMode>,
 
 named!(am_indexed_indirect <AddressingMode>,
     do_parse!(
+        space >>
         byte: delimited!(tag!("("), alt!(parse_byte_hex | parse_byte_dec), tag_no_case!(",X")) >>
         ({ let (addr, _) = byte; AddressingMode::IndexedIndirect(addr) })
     )
@@ -115,6 +116,7 @@ named!(am_indexed_indirect <AddressingMode>,
 
 named!(am_indirect_indexed <AddressingMode>,
     do_parse!(
+        space >>
         byte: delimited!(tag!("("), alt!(parse_byte_hex | parse_byte_dec), tag_no_case!("),Y")) >>
         ({ let (addr, _) = byte; AddressingMode::IndirectIndexed(addr) })
     )
@@ -122,6 +124,7 @@ named!(am_indirect_indexed <AddressingMode>,
 
 named!(am_accumulator <AddressingMode>,
     do_parse!(
+        space >>
         tag_no_case!("A") >>
         (AddressingMode::Accumulator)
     )
@@ -129,6 +132,7 @@ named!(am_accumulator <AddressingMode>,
 
 named!(am_immediate <AddressingMode>,
     do_parse!(
+        space >>
         val: preceded!(tag!("#"), alt!(parse_byte_hex | parse_byte_dec)) >>
         ({ let (byte, sign) = val; AddressingMode::Immediate(byte, sign)})
     )
@@ -136,6 +140,7 @@ named!(am_immediate <AddressingMode>,
 
 named!(am_abs <AddressingMode>,
     do_parse!(
+        space >>
         val: alt!(parse_word_hex | dec_u16) >>
         (AddressingMode::Absolute(val))
     )
@@ -143,6 +148,7 @@ named!(am_abs <AddressingMode>,
 
 named!(am_zp_or_relative <AddressingMode>,
     do_parse!(
+        space >>
         val: alt!(parse_byte_hex | parse_byte_dec) >>
         ({ let (byte, sign) = val; AddressingMode::ZeroPageOrRelative(byte, sign)})
     )
@@ -150,6 +156,7 @@ named!(am_zp_or_relative <AddressingMode>,
 
 named!(am_zp_x <AddressingMode>,
     do_parse!(
+        space >>
         val: terminated!(alt!(parse_byte_hex | parse_byte_dec), tag_no_case!(",X")) >>
         ({ let (byte, _) = val; AddressingMode::ZeroPageX(byte)})
     )
@@ -157,6 +164,7 @@ named!(am_zp_x <AddressingMode>,
 
 named!(am_zp_y <AddressingMode>,
     do_parse!(
+        space >>
         val: terminated!(alt!(parse_byte_hex | parse_byte_dec), tag_no_case!(",Y")) >>
         ({ let (byte, _) = val; AddressingMode::ZeroPageY(byte)})
     )
@@ -164,6 +172,7 @@ named!(am_zp_y <AddressingMode>,
 
 named!(am_abs_x <AddressingMode>,
     do_parse!(
+        space >>
         val: terminated!(alt!(parse_word_hex | dec_u16), tag_no_case!(",X")) >>
         (AddressingMode::AbsoluteX(val))
     )
@@ -171,6 +180,7 @@ named!(am_abs_x <AddressingMode>,
 
 named!(am_abs_y <AddressingMode>,
     do_parse!(
+        space >>
         val: terminated!(alt!(parse_word_hex | dec_u16), tag_no_case!(",Y")) >>
         (AddressingMode::AbsoluteY(val))
     )

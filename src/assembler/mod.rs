@@ -33,6 +33,8 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Bpl => res = relative(0x10, am, "BPL", writer),
                     Mnemonic::Bvc => res = relative(0x50, am, "BVC", writer),
                     Mnemonic::Bvs => res = relative(0x70, am, "BVS", writer),
+                    Mnemonic::Brk => res = implied(0x00, am, "BRK", writer),
+                    Mnemonic::Cmp => res = cmp(am, writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
@@ -91,6 +93,20 @@ fn bit<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+fn cmp<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::Immediate(val, sign) => immediate(0xc9, val, sign, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0xc5, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => zero_page_x(0xd5, addr, writer),
+        AddressingMode::Absolute(addr) => absolute(0xcd, addr, writer),
+        AddressingMode::AbsoluteX(addr) => absolute_x(0xdd, addr, writer),
+        AddressingMode::AbsoluteY(addr) => absolute_y(0xd9, addr, writer),
+        AddressingMode::IndexedIndirect(addr) => indexed_indirect(0xc1, addr, writer),
+        AddressingMode::IndirectIndexed(addr) => indirect_indexed(0xd1, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for CMP: {:?}", am)),
+    }
+}
+
 fn accumulator<T: Write>(opcode: u8, writer: &mut T) -> AssembleResult {
     byte(opcode, writer)
 }
@@ -139,6 +155,18 @@ fn relative<T: Write>(opcode: u8,
             Sign::Negative
         };
         byte(opcode, writer).and_then(|_| signed(offset, sign, writer))
+    } else {
+        Err(format!("Unexpected operand encountered for {}: {:?}", mnemonic, am))
+    }
+}
+
+fn implied<T: Write>(opcode: u8,
+                      am: AddressingMode,
+                      mnemonic: &'static str,
+                      writer: &mut T)
+                      -> AssembleResult {
+    if let AddressingMode::Implied = am {
+        byte(opcode, writer)
     } else {
         Err(format!("Unexpected operand encountered for {}: {:?}", mnemonic, am))
     }
