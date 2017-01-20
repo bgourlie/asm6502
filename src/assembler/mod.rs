@@ -38,6 +38,7 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Cpx => res = cpx(am, writer),
                     Mnemonic::Cpy => res = cpy(am, writer),
                     Mnemonic::Dec => res = dec(am, writer),
+                    Mnemonic::Eor => res = eor(am, writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
@@ -140,6 +141,20 @@ fn dec<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
         AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0xc6, addr, sign, writer),
         AddressingMode::ZeroPageX(addr) => zero_page_x(0xd6, addr, writer),
         _ => Err(format!("Unexpected operand encountered for DEC: {:?}", am)),
+    }
+}
+
+fn eor<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::Immediate(val, sign) => immediate(0x49, val, sign, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x45, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => zero_page_x(0x55, addr, writer),
+        AddressingMode::Absolute(addr) => absolute(0x4d, addr, writer),
+        AddressingMode::AbsoluteX(addr) => absolute_x(0x5d, addr, writer),
+        AddressingMode::AbsoluteY(addr) => absolute_y(0x59, addr, writer),
+        AddressingMode::IndexedIndirect(addr) => indexed_indirect(0x41, addr, writer),
+        AddressingMode::IndirectIndexed(addr) => indirect_indexed(0x51, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for ADC: {:?}", am)),
     }
 }
 

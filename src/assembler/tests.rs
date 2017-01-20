@@ -672,3 +672,42 @@ fn dec() {
     // ZeroPageY
     assert_assemble_err!("DEC $44,Y");
 }
+
+#[test]
+fn eor() {
+    // Absolute
+    assert_assemble!("EOR $4400", &[0x4d, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble!("EOR $4400,X", &[0x5d, 0x00, 0x44]);
+
+    // AbsoluteY
+    assert_assemble!("EOR $4400,Y", &[0x59, 0x00, 0x44]);
+
+    // Accumulator
+    assert_assemble_err!("EOR A");
+
+    // IndexedIndirect
+    assert_assemble!("EOR ($44,X)", &[0x41, 0x44]);
+
+    // IndirectIndexed
+    assert_assemble!("EOR ($44),Y", &[0x51, 0x44]);
+
+    // Immediate
+    assert_assemble!("EOR #$44", &[0x49, 0x44]);
+
+    // Implied
+    assert_assemble_err!("EOR\n");
+
+    // Relative
+    assert_assemble_err!("EOR -44");
+
+    // ZeroPage
+    assert_assemble!("EOR $44", &[0x45, 0x44]);
+
+    // ZeroPageX
+    assert_assemble!("EOR $44,X", &[0x55, 0x44]);
+
+    // ZeroPageY
+    assert_assemble_err!("EOR $44,Y");
+}
