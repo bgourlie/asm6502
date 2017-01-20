@@ -37,6 +37,7 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Cmp => res = cmp(am, writer),
                     Mnemonic::Cpx => res = cpx(am, writer),
                     Mnemonic::Cpy => res = cpy(am, writer),
+                    Mnemonic::Dec => res = dec(am, writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
@@ -102,14 +103,14 @@ fn brk<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
 
 fn cmp<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
-        AddressingMode::Immediate(val, sign) => immediate(0xc9, val, sign, writer),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0xc5, addr, sign, writer),
-        AddressingMode::ZeroPageX(addr) => zero_page_x(0xd5, addr, writer),
         AddressingMode::Absolute(addr) => absolute(0xcd, addr, writer),
         AddressingMode::AbsoluteX(addr) => absolute_x(0xdd, addr, writer),
         AddressingMode::AbsoluteY(addr) => absolute_y(0xd9, addr, writer),
+        AddressingMode::Immediate(val, sign) => immediate(0xc9, val, sign, writer),
         AddressingMode::IndexedIndirect(addr) => indexed_indirect(0xc1, addr, writer),
         AddressingMode::IndirectIndexed(addr) => indirect_indexed(0xd1, addr, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0xc5, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => zero_page_x(0xd5, addr, writer),
         _ => Err(format!("Unexpected operand encountered for CMP: {:?}", am)),
     }
 }
@@ -125,10 +126,20 @@ fn cpx<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
 
 fn cpy<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
+        AddressingMode::Absolute(addr) => absolute(0xcc, addr, writer),
         AddressingMode::Immediate(val, sign) => immediate(0xc0, val, sign, writer),
         AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0xc4, addr, sign, writer),
-        AddressingMode::Absolute(addr) => absolute(0xcc, addr, writer),
         _ => Err(format!("Unexpected operand encountered for CPY: {:?}", am)),
+    }
+}
+
+fn dec<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::Absolute(addr) => absolute(0xce, addr, writer),
+        AddressingMode::AbsoluteX(addr) => absolute_x(0xde, addr, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0xc6, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => zero_page_x(0xd6, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for DEC: {:?}", am)),
     }
 }
 

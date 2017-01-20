@@ -633,3 +633,42 @@ fn cpy() {
     // ZeroPageY
     assert_assemble_err!("CPY $44,Y");
 }
+
+#[test]
+fn dec() {
+    // Absolute
+    assert_assemble!("DEC $4400", &[0xce, 0x0, 0x44]);
+
+    // AbsoluteX
+    assert_assemble!("DEC $4400,X", &[0xde, 0x0, 0x44]);
+
+    // AbsoluteY
+    assert_assemble_err!("DEC $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("DEC A");
+
+    // IndexedIndirect
+    assert_assemble_err!("DEC ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("DEC ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("DEC #$44");
+
+    // Implied
+    assert_assemble_err!("DEC\n");
+
+    // Relative
+    assert_assemble_err!("DEC -44");
+
+    // ZeroPage
+    assert_assemble!("DEC $44", &[0xc6, 0x44]);
+
+    // ZeroPageX
+    assert_assemble!("DEC $44,X", &[0xd6, 0x44]);
+
+    // ZeroPageY
+    assert_assemble_err!("DEC $44,Y");
+}
