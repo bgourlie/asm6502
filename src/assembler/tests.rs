@@ -1941,3 +1941,45 @@ fn rts() {
     // ZeroPageY
     assert_assemble_err!("RTS $44,Y");
 }
+
+#[test]
+fn sbc() {
+    // Absolute
+    assert_assemble!("SBC $4400", &[0xed, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble!("SBC $4400,X", &[0xfd, 0x00, 0x44]);
+
+    // AbsoluteY
+    assert_assemble!("SBC $4400,Y", &[0xf9, 0x00, 0x44]);
+
+    // Accumulator
+    assert_assemble_err!("SBC A");
+
+    // Indirect
+    assert_assemble_err!("SBC ($4400)");
+
+    // IndexedIndirect
+    assert_assemble!("SBC ($44,X)", &[0xe1, 0x44]);
+
+    // IndirectIndexed
+    assert_assemble!("SBC ($44),Y", &[0xf1, 0x44]);
+
+    // Immediate
+    assert_assemble!("SBC #$44", &[0xe9, 0x44]);
+
+    // Implied
+    assert_assemble_err!("SBC\n");
+
+    // Relative
+    assert_assemble_err!("SBC -44");
+
+    // ZeroPage
+    assert_assemble!("SBC $44", &[0xe5, 0x44]);
+
+    // ZeroPageX
+    assert_assemble!("SBC $44,X", &[0xf5, 0x44]);
+
+    // ZeroPageY
+    assert_assemble_err!("SBC $44,Y");
+}

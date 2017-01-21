@@ -67,6 +67,7 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Ror => res = ror(am, writer),
                     Mnemonic::Rti => res = implied(0x40, am, "RTI", writer),
                     Mnemonic::Rts => res = implied(0x60, am, "RTS", writer),
+                    Mnemonic::Sbc => res = sbc(am, writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
@@ -291,6 +292,20 @@ fn ror<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
         AddressingMode::Absolute(addr) => memory_word(0x6e, addr, writer),
         AddressingMode::AbsoluteX(addr) => memory_word(0x7e, addr, writer),
         _ => Err(format!("Unexpected operand encountered for ROR: {:?}", am)),
+    }
+}
+
+fn sbc<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::Immediate(val, sign) => immediate(0xe9, val, sign, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0xe5, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => memory_byte(0xf5, addr, writer),
+        AddressingMode::Absolute(addr) => memory_word(0xed, addr, writer),
+        AddressingMode::AbsoluteX(addr) => memory_word(0xfd, addr, writer),
+        AddressingMode::AbsoluteY(addr) => memory_word(0xf9, addr, writer),
+        AddressingMode::IndexedIndirect(addr) => memory_byte(0xe1, addr, writer),
+        AddressingMode::IndirectIndexed(addr) => memory_byte(0xf1, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for SBC: {:?}", am)),
     }
 }
 
