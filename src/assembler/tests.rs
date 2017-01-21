@@ -1983,3 +1983,45 @@ fn sbc() {
     // ZeroPageY
     assert_assemble_err!("SBC $44,Y");
 }
+
+#[test]
+fn sta() {
+    // Absolute
+    assert_assemble!("STA $4400", &[0x8d, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble!("STA $4400,X", &[0x9d, 0x00, 0x44]);
+
+    // AbsoluteY
+    assert_assemble!("STA $4400,Y", &[0x99, 0x00, 0x44]);
+
+    // Accumulator
+    assert_assemble_err!("STA A");
+
+    // Indirect
+    assert_assemble_err!("STA ($4400)");
+
+    // IndexedIndirect
+    assert_assemble!("STA ($44,X)", &[0x81, 0x44]);
+
+    // IndirectIndexed
+    assert_assemble!("STA ($44),Y", &[0x91, 0x44]);
+
+    // Immediate
+    assert_assemble_err!("STA #$44");
+
+    // Implied
+    assert_assemble_err!("STA\n");
+
+    // Relative
+    assert_assemble_err!("STA -44");
+
+    // ZeroPage
+    assert_assemble!("STA $44", &[0x85, 0x44]);
+
+    // ZeroPageX
+    assert_assemble!("STA $44,X", &[0x95, 0x44]);
+
+    // ZeroPageY
+    assert_assemble_err!("STA $44,Y");
+}

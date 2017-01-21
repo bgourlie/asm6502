@@ -68,6 +68,7 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Rti => res = implied(0x40, am, "RTI", writer),
                     Mnemonic::Rts => res = implied(0x60, am, "RTS", writer),
                     Mnemonic::Sbc => res = sbc(am, writer),
+                    Mnemonic::Sta => res = sta(am, writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
@@ -306,6 +307,19 @@ fn sbc<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
         AddressingMode::IndexedIndirect(addr) => memory_byte(0xe1, addr, writer),
         AddressingMode::IndirectIndexed(addr) => memory_byte(0xf1, addr, writer),
         _ => Err(format!("Unexpected operand encountered for SBC: {:?}", am)),
+    }
+}
+
+fn sta<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x85, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => memory_byte(0x95, addr, writer),
+        AddressingMode::Absolute(addr) => memory_word(0x8d, addr, writer),
+        AddressingMode::AbsoluteX(addr) => memory_word(0x9d, addr, writer),
+        AddressingMode::AbsoluteY(addr) => memory_word(0x99, addr, writer),
+        AddressingMode::IndexedIndirect(addr) => memory_byte(0x81, addr, writer),
+        AddressingMode::IndirectIndexed(addr) => memory_byte(0x91, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for STA: {:?}", am)),
     }
 }
 
