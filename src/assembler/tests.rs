@@ -984,3 +984,84 @@ fn sei() {
     // ZeroPageY
     assert_assemble_err!("SEI $44,Y");
 }
+
+#[test]
+fn inc() {
+    // Absolute
+    assert_assemble!("INC $4400", &[0xee, 0x0, 0x44]);
+
+    // AbsoluteX
+    assert_assemble!("INC $4400,X", &[0xfe, 0x0, 0x44]);
+
+    // AbsoluteY
+    assert_assemble_err!("INC $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("INC A");
+
+    // IndexedIndirect
+    assert_assemble_err!("INC ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("INC ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("INC #$44");
+
+    // Implied
+    assert_assemble_err!("INC\n");
+
+    // Relative
+    assert_assemble_err!("INC -44");
+
+    // ZeroPage
+    assert_assemble!("INC $44", &[0xe6, 0x44]);
+
+    // ZeroPageX
+    assert_assemble!("INC $44,X", &[0xf6, 0x44]);
+
+    // ZeroPageY
+    assert_assemble_err!("INC $44,Y");
+}
+
+#[test]
+fn jmp() {
+    // Absolute
+    assert_assemble!("JMP $4400", &[0x4c, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble_err!("JMP $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("JMP $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("JMP A");
+
+    // IndexedIndirect
+    assert_assemble_err!("JMP ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("JMP ($44),Y");
+
+    // Indirect
+    assert_assemble!("JMP ($4400)", &[0x6c, 0x0, 0x44]);
+
+    // Immediate
+    assert_assemble_err!("JMP #$44");
+
+    // Implied
+    assert_assemble_err!("JMP\n");
+
+    // Relative
+    assert_assemble_err!("JMP -44");
+
+    // ZeroPage
+    assert_assemble_err!("JMP $44");
+
+    // ZeroPageX
+    assert_assemble_err!("JMP $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("JMP $44,Y");
+}
