@@ -54,6 +54,7 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Ldy => res = ldy(am, writer),
                     Mnemonic::Lsr => res = lsr(am, writer),
                     Mnemonic::Nop => res = implied(0xea, am, "NOP", writer),
+                    Mnemonic::Ora => res = ora(am, writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
@@ -242,6 +243,20 @@ fn lsr<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
         AddressingMode::Absolute(addr) => memory_word(0x4e, addr, writer),
         AddressingMode::AbsoluteX(addr) => memory_word(0x5e, addr, writer),
         _ => Err(format!("Unexpected operand encountered for LSR: {:?}", am)),
+    }
+}
+
+fn ora<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::Immediate(val, sign) => immediate(0x09, val, sign, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x05, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => memory_byte(0x15, addr, writer),
+        AddressingMode::Absolute(addr) => memory_word(0x0d, addr, writer),
+        AddressingMode::AbsoluteX(addr) => memory_word(0x1d, addr, writer),
+        AddressingMode::AbsoluteY(addr) => memory_word(0x19, addr, writer),
+        AddressingMode::IndexedIndirect(addr) => memory_byte(0x01, addr, writer),
+        AddressingMode::IndirectIndexed(addr) => memory_byte(0x11, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for ORA: {:?}", am)),
     }
 }
 

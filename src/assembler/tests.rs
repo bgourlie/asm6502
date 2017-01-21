@@ -1395,3 +1395,45 @@ fn nop() {
     // ZeroPageY
     assert_assemble_err!("NOP $44,Y");
 }
+
+#[test]
+fn ora() {
+    // Absolute
+    assert_assemble!("ORA $4400", &[0x0d, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble!("ORA $4400,X", &[0x1d, 0x00, 0x44]);
+
+    // AbsoluteY
+    assert_assemble!("ORA $4400,Y", &[0x19, 0x00, 0x44]);
+
+    // Accumulator
+    assert_assemble_err!("ORA A");
+
+    // Indirect
+    assert_assemble_err!("ORA ($4400)");
+
+    // IndexedIndirect
+    assert_assemble!("ORA ($44,X)", &[0x01, 0x44]);
+
+    // IndirectIndexed
+    assert_assemble!("ORA ($44),Y", &[0x11, 0x44]);
+
+    // Immediate
+    assert_assemble!("ORA #$44", &[0x09, 0x44]);
+
+    // Implied
+    assert_assemble_err!("ORA\n");
+
+    // Relative
+    assert_assemble_err!("ADC -44");
+
+    // ZeroPage
+    assert_assemble!("ORA $44", &[0x05, 0x44]);
+
+    // ZeroPageX
+    assert_assemble!("ORA $44,X", &[0x15, 0x44]);
+
+    // ZeroPageY
+    assert_assemble_err!("ORA $44,Y");
+}
