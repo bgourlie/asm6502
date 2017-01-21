@@ -1,4 +1,4 @@
-# asm6502
+# asm6502 [![Build Status](https://travis-ci.org/bgourlie/asm6502.svg?branch=master)](https://travis-ci.org/bgourlie/asm6502)
 
 A work-in-progress 6502 assembler.
 
