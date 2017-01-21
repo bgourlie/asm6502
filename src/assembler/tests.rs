@@ -711,3 +711,276 @@ fn eor() {
     // ZeroPageY
     assert_assemble_err!("EOR $44,Y");
 }
+
+#[test]
+fn clc() {
+    // Absolute
+    assert_assemble_err!("CLC $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("CLC $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("CLC $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("CLC A");
+
+    // IndexedIndirect
+    assert_assemble_err!("CLC ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("CLC ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("CLC #$44");
+
+    // Implied
+    assert_assemble!("CLC\n", &[0x18]);
+
+    // Relative
+    assert_assemble_err!("CLC -44");
+
+    // ZeroPage
+    assert_assemble_err!("CLC $44");
+
+    // ZeroPageX
+    assert_assemble_err!("CLC $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("CLC $44,Y");
+}
+
+#[test]
+fn cld() {
+    // Absolute
+    assert_assemble_err!("CLD $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("CLD $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("CLD $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("CLD A");
+
+    // IndexedIndirect
+    assert_assemble_err!("CLD ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("CLD ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("CLD #$44");
+
+    // Implied
+    assert_assemble!("CLD\n", &[0xd8]);
+
+    // Relative
+    assert_assemble_err!("CLD -44");
+
+    // ZeroPage
+    assert_assemble_err!("CLD $44");
+
+    // ZeroPageX
+    assert_assemble_err!("CLD $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("CLD $44,Y");
+}
+
+#[test]
+fn cli() {
+    // Absolute
+    assert_assemble_err!("CLI $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("CLI $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("CLI $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("CLI A");
+
+    // IndexedIndirect
+    assert_assemble_err!("CLI ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("CLI ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("CLI #$44");
+
+    // Implied
+    assert_assemble!("CLI\n", &[0x58]);
+
+    // Relative
+    assert_assemble_err!("CLI -44");
+
+    // ZeroPage
+    assert_assemble_err!("CLI $44");
+
+    // ZeroPageX
+    assert_assemble_err!("CLI $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("CLI $44,Y");
+}
+
+#[test]
+fn clv() {
+    // Absolute
+    assert_assemble_err!("CLV $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("CLV $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("CLV $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("CLV A");
+
+    // IndexedIndirect
+    assert_assemble_err!("CLV ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("CLV ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("CLV #$44");
+
+    // Implied
+    assert_assemble!("CLV\n", &[0xb8]);
+
+    // Relative
+    assert_assemble_err!("CLV -44");
+
+    // ZeroPage
+    assert_assemble_err!("CLV $44");
+
+    // ZeroPageX
+    assert_assemble_err!("CLV $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("CLV $44,Y");
+}
+
+#[test]
+fn sec() {
+    // Absolute
+    assert_assemble_err!("SEC $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("SEC $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("SEC $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("SEC A");
+
+    // IndexedIndirect
+    assert_assemble_err!("SEC ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("SEC ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("SEC #$44");
+
+    // Implied
+    assert_assemble!("SEC\n", &[0x38]);
+
+    // Relative
+    assert_assemble_err!("SEC -44");
+
+    // ZeroPage
+    assert_assemble_err!("SEC $44");
+
+    // ZeroPageX
+    assert_assemble_err!("SEC $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("SEC $44,Y");
+}
+
+#[test]
+fn sed() {
+    // Absolute
+    assert_assemble_err!("SED $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("SED $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("SED $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("SED A");
+
+    // IndexedIndirect
+    assert_assemble_err!("SED ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("SED ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("SED #$44");
+
+    // Implied
+    assert_assemble!("SED\n", &[0xf8]);
+
+    // Relative
+    assert_assemble_err!("SED -44");
+
+    // ZeroPage
+    assert_assemble_err!("SED $44");
+
+    // ZeroPageX
+    assert_assemble_err!("SED $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("SED $44,Y");
+}
+
+#[test]
+fn sei() {
+    // Absolute
+    assert_assemble_err!("SEI $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("SEI $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("SEI $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("SEI A");
+
+    // IndexedIndirect
+    assert_assemble_err!("SEI ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("SEI ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("SEI #$44");
+
+    // Implied
+    assert_assemble!("SEI\n", &[0x78]);
+
+    // Relative
+    assert_assemble_err!("SEI -44");
+
+    // ZeroPage
+    assert_assemble_err!("SEI $44");
+
+    // ZeroPageX
+    assert_assemble_err!("SEI $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("SEI $44,Y");
+}

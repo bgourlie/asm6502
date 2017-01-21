@@ -39,6 +39,13 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Cpy => res = cpy(am, writer),
                     Mnemonic::Dec => res = dec(am, writer),
                     Mnemonic::Eor => res = eor(am, writer),
+                    Mnemonic::Clc => res = implied(0x18, am, "CLC", writer),
+                    Mnemonic::Cld => res = implied(0xd8, am, "CLD", writer),
+                    Mnemonic::Cli => res = implied(0x58, am, "CLI", writer),
+                    Mnemonic::Clv => res = implied(0xb8, am, "CLV", writer),
+                    Mnemonic::Sec => res = implied(0x38, am, "SEC", writer),
+                    Mnemonic::Sed => res = implied(0xf8, am, "SED", writer),
+                    Mnemonic::Sei => res = implied(0x78, am, "SEI", writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
