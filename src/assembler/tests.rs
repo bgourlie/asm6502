@@ -1426,7 +1426,7 @@ fn ora() {
     assert_assemble_err!("ORA\n");
 
     // Relative
-    assert_assemble_err!("ADC -44");
+    assert_assemble_err!("ORA -44");
 
     // ZeroPage
     assert_assemble!("ORA $44", &[0x05, 0x44]);
@@ -1772,4 +1772,88 @@ fn iny() {
 
     // ZeroPageY
     assert_assemble_err!("INY $44,Y");
+}
+
+#[test]
+fn rol() {
+    // Absolute
+    assert_assemble!("ROL $4400", &[0x2e, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble!("ROL $4400,X", &[0x3e, 0x00, 0x44]);
+
+    // AbsoluteY
+    assert_assemble_err!("ROL $4400,Y");
+
+    // Accumulator
+    assert_assemble!("ROL A", &[0x2a]);
+
+    // Indirect
+    assert_assemble_err!("ROL ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("ROL ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("ROL ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("ROL #$44");
+
+    // Implied
+    assert_assemble_err!("ROL\n");
+
+    // Relative
+    assert_assemble_err!("ROL -44");
+
+    // ZeroPage
+    assert_assemble!("ROL $44", &[0x26, 0x44]);
+
+    // ZeroPageX
+    assert_assemble!("ROL $44,X", &[0x36, 0x44]);
+
+    // ZeroPageY
+    assert_assemble_err!("ROL $44,Y");
+}
+
+#[test]
+fn ror() {
+    // Absolute
+    assert_assemble!("ROR $4400", &[0x6e, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble!("ROR $4400,X", &[0x7e, 0x00, 0x44]);
+
+    // AbsoluteY
+    assert_assemble_err!("ROR $4400,Y");
+
+    // Accumulator
+    assert_assemble!("ROR A", &[0x6a]);
+
+    // Indirect
+    assert_assemble_err!("ROR ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("ROR ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("ROR ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("ROR #$44");
+
+    // Implied
+    assert_assemble_err!("ROR\n");
+
+    // Relative
+    assert_assemble_err!("ROR -44");
+
+    // ZeroPage
+    assert_assemble!("ROR $44", &[0x66, 0x44]);
+
+    // ZeroPageX
+    assert_assemble!("ROR $44,X", &[0x76, 0x44]);
+
+    // ZeroPageY
+    assert_assemble_err!("ROR $44,Y");
 }

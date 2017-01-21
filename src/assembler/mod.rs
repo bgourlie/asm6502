@@ -63,6 +63,8 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Tya => res = implied(0x98, am, "TYA", writer),
                     Mnemonic::Dey => res = implied(0x88, am, "DEY", writer),
                     Mnemonic::Iny => res = implied(0xc8, am, "INY", writer),
+                    Mnemonic::Rol => res = rol(am, writer),
+                    Mnemonic::Ror => res = ror(am, writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
@@ -265,6 +267,28 @@ fn ora<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
         AddressingMode::IndexedIndirect(addr) => memory_byte(0x01, addr, writer),
         AddressingMode::IndirectIndexed(addr) => memory_byte(0x11, addr, writer),
         _ => Err(format!("Unexpected operand encountered for ORA: {:?}", am)),
+    }
+}
+
+fn rol<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::Accumulator => byte(0x2a, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x26, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => memory_byte(0x36, addr, writer),
+        AddressingMode::Absolute(addr) => memory_word(0x2e, addr, writer),
+        AddressingMode::AbsoluteX(addr) => memory_word(0x3e, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for ROL: {:?}", am)),
+    }
+}
+
+fn ror<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::Accumulator => byte(0x6a, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x66, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => memory_byte(0x76, addr, writer),
+        AddressingMode::Absolute(addr) => memory_word(0x6e, addr, writer),
+        AddressingMode::AbsoluteX(addr) => memory_word(0x7e, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for ROR: {:?}", am)),
     }
 }
 
