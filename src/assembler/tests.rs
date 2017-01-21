@@ -1857,3 +1857,45 @@ fn ror() {
     // ZeroPageY
     assert_assemble_err!("ROR $44,Y");
 }
+
+#[test]
+fn rti() {
+    // Absolute
+    assert_assemble_err!("RTI $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("RTI $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("RTI $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("RTI A");
+
+    // Indirect
+    assert_assemble_err!("RTI ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("RTI ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("RTI ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("RTI #$44");
+
+    // Implied
+    assert_assemble!("RTI\n", &[0x40]);
+
+    // Relative
+    assert_assemble_err!("RTI -44");
+
+    // ZeroPage
+    assert_assemble_err!("RTI $44");
+
+    // ZeroPageX
+    assert_assemble_err!("RTI $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("RTI $44,Y");
+}
