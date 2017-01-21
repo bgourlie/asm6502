@@ -1437,3 +1437,339 @@ fn ora() {
     // ZeroPageY
     assert_assemble_err!("ORA $44,Y");
 }
+
+#[test]
+fn tax() {
+    // Absolute
+    assert_assemble_err!("TAX $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("TAX $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("TAX $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("TAX A");
+
+    // Indirect
+    assert_assemble_err!("TAX ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("TAX ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("TAX ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("TAX #$44");
+
+    // Implied
+    assert_assemble!("TAX\n", &[0xaa]);
+
+    // Relative
+    assert_assemble_err!("TAX -44");
+
+    // ZeroPage
+    assert_assemble_err!("TAX $44");
+
+    // ZeroPageX
+    assert_assemble_err!("TAX $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("TAX $44,Y");
+}
+
+#[test]
+fn txa() {
+    // Absolute
+    assert_assemble_err!("TXA $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("TXA $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("TXA $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("TXA A");
+
+    // Indirect
+    assert_assemble_err!("TXA ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("TXA ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("TXA ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("TXA #$44");
+
+    // Implied
+    assert_assemble!("TXA\n", &[0x8a]);
+
+    // Relative
+    assert_assemble_err!("TXA -44");
+
+    // ZeroPage
+    assert_assemble_err!("TXA $44");
+
+    // ZeroPageX
+    assert_assemble_err!("TXA $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("TXA $44,Y");
+}
+
+#[test]
+fn dex() {
+    // Absolute
+    assert_assemble_err!("DEX $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("DEX $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("DEX $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("DEX A");
+
+    // Indirect
+    assert_assemble_err!("DEX ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("DEX ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("DEX ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("DEX #$44");
+
+    // Implied
+    assert_assemble!("DEX\n", &[0xca]);
+
+    // Relative
+    assert_assemble_err!("DEX -44");
+
+    // ZeroPage
+    assert_assemble_err!("DEX $44");
+
+    // ZeroPageX
+    assert_assemble_err!("DEX $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("DEX $44,Y");
+}
+
+#[test]
+fn inx() {
+    // Absolute
+    assert_assemble_err!("INX $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("INX $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("INX $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("INX A");
+
+    // Indirect
+    assert_assemble_err!("INX ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("INX ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("INX ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("INX #$44");
+
+    // Implied
+    assert_assemble!("INX\n", &[0xe8]);
+
+    // Relative
+    assert_assemble_err!("INX -44");
+
+    // ZeroPage
+    assert_assemble_err!("INX $44");
+
+    // ZeroPageX
+    assert_assemble_err!("INX $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("INX $44,Y");
+}
+
+#[test]
+fn tay() {
+    // Absolute
+    assert_assemble_err!("TAY $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("TAY $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("TAY $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("TAY A");
+
+    // Indirect
+    assert_assemble_err!("TAY ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("TAY ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("TAY ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("TAY #$44");
+
+    // Implied
+    assert_assemble!("TAY\n", &[0xa8]);
+
+    // Relative
+    assert_assemble_err!("TAY -44");
+
+    // ZeroPage
+    assert_assemble_err!("TAY $44");
+
+    // ZeroPageX
+    assert_assemble_err!("TAY $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("TAY $44,Y");
+}
+
+#[test]
+fn tya() {
+    // Absolute
+    assert_assemble_err!("TYA $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("TYA $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("TYA $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("TYA A");
+
+    // Indirect
+    assert_assemble_err!("TYA ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("TYA ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("TYA ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("TYA #$44");
+
+    // Implied
+    assert_assemble!("TYA\n", &[0x98]);
+
+    // Relative
+    assert_assemble_err!("TYA -44");
+
+    // ZeroPage
+    assert_assemble_err!("TYA $44");
+
+    // ZeroPageX
+    assert_assemble_err!("TYA $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("TYA $44,Y");
+}
+
+#[test]
+fn dey() {
+    // Absolute
+    assert_assemble_err!("DEY $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("DEY $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("DEY $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("DEY A");
+
+    // Indirect
+    assert_assemble_err!("DEY ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("DEY ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("DEY ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("DEY #$44");
+
+    // Implied
+    assert_assemble!("DEY\n", &[0x88]);
+
+    // Relative
+    assert_assemble_err!("DEY -44");
+
+    // ZeroPage
+    assert_assemble_err!("DEY $44");
+
+    // ZeroPageX
+    assert_assemble_err!("DEY $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("DEY $44,Y");
+}
+
+#[test]
+fn iny() {
+    // Absolute
+    assert_assemble_err!("INY $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("INY $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("INY $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("INY A");
+
+    // Indirect
+    assert_assemble_err!("INY ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("INY ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("INY ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("INY #$44");
+
+    // Implied
+    assert_assemble!("INY\n", &[0xc8]);
+
+    // Relative
+    assert_assemble_err!("INY -44");
+
+    // ZeroPage
+    assert_assemble_err!("INY $44");
+
+    // ZeroPageX
+    assert_assemble_err!("INY $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("INY $44,Y");
+}

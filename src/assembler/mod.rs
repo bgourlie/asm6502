@@ -55,6 +55,14 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Lsr => res = lsr(am, writer),
                     Mnemonic::Nop => res = implied(0xea, am, "NOP", writer),
                     Mnemonic::Ora => res = ora(am, writer),
+                    Mnemonic::Tax => res = implied(0xaa, am, "TAX", writer),
+                    Mnemonic::Txa => res = implied(0x8a, am, "TXA", writer),
+                    Mnemonic::Dex => res = implied(0xca, am, "DEX", writer),
+                    Mnemonic::Inx => res = implied(0xe8, am, "INX", writer),
+                    Mnemonic::Tay => res = implied(0xa8, am, "TAY", writer),
+                    Mnemonic::Tya => res = implied(0x98, am, "TYA", writer),
+                    Mnemonic::Dey => res = implied(0x88, am, "DEY", writer),
+                    Mnemonic::Iny => res = implied(0xc8, am, "INY", writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
