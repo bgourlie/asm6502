@@ -1143,3 +1143,45 @@ fn jmp() {
     // ZeroPageY
     assert_assemble_err!("JMP $44,Y");
 }
+
+#[test]
+fn jsr() {
+    // Absolute
+    assert_assemble!("JSR $4400", &[0x20, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble_err!("JSR $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("JSR $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("JSR A");
+
+    // Indirect
+    assert_assemble_err!("JSR ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("JSR ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("JSR ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("JSR #$44");
+
+    // Implied
+    assert_assemble_err!("JSR\n");
+
+    // Relative
+    assert_assemble_err!("JSR -44");
+
+    // ZeroPage
+    assert_assemble_err!("JSR $44");
+
+    // ZeroPageX
+    assert_assemble_err!("JSR $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("JSR $44,Y");
+}

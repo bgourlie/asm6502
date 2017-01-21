@@ -48,6 +48,7 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Sei => res = implied(0x78, am, "SEI", writer),
                     Mnemonic::Inc => res = inc(am, writer),
                     Mnemonic::Jmp => res = jmp(am, writer),
+                    Mnemonic::Jsr => res = jsr(am, writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
@@ -182,6 +183,13 @@ fn jmp<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
         AddressingMode::Absolute(addr) => absolute_or_indirect(0x4c, addr, writer),
         AddressingMode::Indirect(addr) => absolute_or_indirect(0x6c, addr, writer),
         _ => Err(format!("Unexpected operand encountered for JMP: {:?}", am)),
+    }
+}
+
+fn jsr<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::Absolute(addr) => absolute_or_indirect(0x20, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for JSR: {:?}", am)),
     }
 }
 
