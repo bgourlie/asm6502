@@ -66,6 +66,7 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Rol => res = rol(am, writer),
                     Mnemonic::Ror => res = ror(am, writer),
                     Mnemonic::Rti => res = implied(0x40, am, "RTI", writer),
+                    Mnemonic::Rts => res = implied(0x60, am, "RTS", writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
