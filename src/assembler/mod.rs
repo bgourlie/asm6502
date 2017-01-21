@@ -53,6 +53,7 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Ldx => res = ldx(am, writer),
                     Mnemonic::Ldy => res = ldy(am, writer),
                     Mnemonic::Lsr => res = lsr(am, writer),
+                    Mnemonic::Nop => res = implied(0xea, am, "NOP", writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {

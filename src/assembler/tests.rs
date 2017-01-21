@@ -1353,3 +1353,45 @@ fn lsr() {
     // ZeroPageY
     assert_assemble_err!("LSR $44,Y");
 }
+
+#[test]
+fn nop() {
+    // Absolute
+    assert_assemble_err!("NOP $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("NOP $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("NOP $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("NOP A");
+
+    // Indirect
+    assert_assemble_err!("NOP ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("NOP ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("NOP ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("NOP #$44");
+
+    // Implied
+    assert_assemble!("NOP\n", &[0xea]);
+
+    // Relative
+    assert_assemble_err!("NOP -44");
+
+    // ZeroPage
+    assert_assemble_err!("NOP $44");
+
+    // ZeroPageX
+    assert_assemble_err!("NOP $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("NOP $44,Y");
+}
