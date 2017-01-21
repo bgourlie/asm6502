@@ -48,6 +48,9 @@ fn adc() {
     // Accumulator
     assert_assemble_err!("ADC A");
 
+    // Indirect
+    assert_assemble_err!("ADC ($4400)");
+
     // IndexedIndirect
     assert_assemble!("ADC ($44,X)", &[0x61, 0x44]);
 
@@ -87,6 +90,9 @@ fn and() {
     // Accumulator
     assert_assemble_err!("AND A");
 
+    // Indirect
+    assert_assemble_err!("AND ($4400)");
+
     // IndexedIndirect
     assert_assemble!("AND ($44,X)", &[0x21, 0x44]);
 
@@ -122,6 +128,9 @@ fn asl() {
 
     // AbsoluteY
     assert_assemble_err!("ASL $4400,Y");
+
+    // Indirect
+    assert_assemble_err!("ASL ($4400)");
 
     // Accumulator
     assert_assemble!("ASL A", &[0x0a]);
@@ -165,6 +174,9 @@ fn bit() {
     // Accumulator
     assert_assemble_err!("BIT A");
 
+    // Indirect
+    assert_assemble_err!("BIT ($4400)");
+
     // IndexedIndirect
     assert_assemble_err!("BIT ($44,X)");
 
@@ -204,6 +216,9 @@ fn bcc() {
     // Accumulator
     assert_assemble_err!("BCC A");
 
+    // Indirect
+    assert_assemble_err!("BCC ($4400)");
+
     // IndexedIndirect
     assert_assemble_err!("BCC ($44,X)");
 
@@ -239,6 +254,9 @@ fn bcs() {
 
     // Accumulator
     assert_assemble_err!("BCS A");
+
+    // Indirect
+    assert_assemble_err!("BCS ($4400)");
 
     // IndexedIndirect
     assert_assemble_err!("BCS ($44,X)");
@@ -276,6 +294,9 @@ fn beq() {
     // Accumulator
     assert_assemble_err!("BEQ A");
 
+    // Indirect
+    assert_assemble_err!("BEQ ($4400)");
+
     // IndexedIndirect
     assert_assemble_err!("BEQ ($44,X)");
 
@@ -311,6 +332,9 @@ fn bmi() {
 
     // Accumulator
     assert_assemble_err!("BMI A");
+
+    // Indirect
+    assert_assemble_err!("BMI ($4400)");
 
     // IndexedIndirect
     assert_assemble_err!("BMI ($44,X)");
@@ -348,6 +372,9 @@ fn bne() {
     // Accumulator
     assert_assemble_err!("BNE A");
 
+    // Indirect
+    assert_assemble_err!("BNE ($4400)");
+
     // IndexedIndirect
     assert_assemble_err!("BNE ($44,X)");
 
@@ -383,6 +410,9 @@ fn bpl() {
 
     // Accumulator
     assert_assemble_err!("BPL A");
+
+    // Indirect
+    assert_assemble_err!("BPL ($4400)");
 
     // IndexedIndirect
     assert_assemble_err!("BPL ($44,X)");
@@ -420,6 +450,9 @@ fn bvc() {
     // Accumulator
     assert_assemble_err!("BVC A");
 
+    // Indirect
+    assert_assemble_err!("BVC ($4400)");
+
     // IndexedIndirect
     assert_assemble_err!("BVC ($44,X)");
 
@@ -456,6 +489,9 @@ fn bvs() {
     // Accumulator
     assert_assemble_err!("BVS A");
 
+    // Indirect
+    assert_assemble_err!("BVS ($4400)");
+
     // IndexedIndirect
     assert_assemble_err!("BVS ($44,X)");
 
@@ -491,6 +527,9 @@ fn brk() {
 
     // Accumulator
     assert_assemble_err!("BRK A");
+
+    // Indirect
+    assert_assemble_err!("BRK ($4400)");
 
     // IndexedIndirect
     assert_assemble_err!("BRK ($44,X)");
@@ -531,6 +570,9 @@ fn cmp() {
     // Accumulator
     assert_assemble_err!("CMP A");
 
+    // Indirect
+    assert_assemble_err!("CMP ($4400)");
+
     // IndexedIndirect
     assert_assemble!("CMP ($44,X)", &[0xc1, 0x44]);
 
@@ -570,6 +612,9 @@ fn cpx() {
     // Accumulator
     assert_assemble_err!("CPX A");
 
+    // Indirect
+    assert_assemble_err!("CPX ($4400)");
+
     // IndexedIndirect
     assert_assemble_err!("CPX ($44,X)");
 
@@ -608,6 +653,9 @@ fn cpy() {
 
     // Accumulator
     assert_assemble_err!("CPY A");
+
+    // Indirect
+    assert_assemble_err!("CPY ($4400)");
 
     // IndexedIndirect
     assert_assemble_err!("CPY ($44,X)");
@@ -654,6 +702,9 @@ fn dec() {
     // IndirectIndexed
     assert_assemble_err!("DEC ($44),Y");
 
+    // Indirect
+    assert_assemble_err!("DEC ($4400)");
+
     // Immediate
     assert_assemble_err!("DEC #$44");
 
@@ -686,6 +737,9 @@ fn eor() {
 
     // Accumulator
     assert_assemble_err!("EOR A");
+
+    // Indirect
+    assert_assemble_err!("EOR ($4400)");
 
     // IndexedIndirect
     assert_assemble!("EOR ($44,X)", &[0x41, 0x44]);
@@ -726,6 +780,9 @@ fn clc() {
     // Accumulator
     assert_assemble_err!("CLC A");
 
+    // Indirect
+    assert_assemble_err!("CLC ($4400)");
+
     // IndexedIndirect
     assert_assemble_err!("CLC ($44,X)");
 
@@ -764,6 +821,9 @@ fn cld() {
 
     // Accumulator
     assert_assemble_err!("CLD A");
+
+    // Indirect
+    assert_assemble_err!("CLD ($4400)");
 
     // IndexedIndirect
     assert_assemble_err!("CLD ($44,X)");
@@ -804,6 +864,9 @@ fn cli() {
     // Accumulator
     assert_assemble_err!("CLI A");
 
+    // Indirect
+    assert_assemble_err!("CLI ($4400)");
+
     // IndexedIndirect
     assert_assemble_err!("CLI ($44,X)");
 
@@ -842,6 +905,9 @@ fn clv() {
 
     // Accumulator
     assert_assemble_err!("CLV A");
+
+    // Indirect
+    assert_assemble_err!("CLV ($4400)");
 
     // IndexedIndirect
     assert_assemble_err!("CLV ($44,X)");
@@ -882,6 +948,9 @@ fn sec() {
     // Accumulator
     assert_assemble_err!("SEC A");
 
+    // Indirect
+    assert_assemble_err!("SEC ($4400)");
+
     // IndexedIndirect
     assert_assemble_err!("SEC ($44,X)");
 
@@ -920,6 +989,9 @@ fn sed() {
 
     // Accumulator
     assert_assemble_err!("SED A");
+
+    // Indirect
+    assert_assemble_err!("SED ($4400)");
 
     // IndexedIndirect
     assert_assemble_err!("SED ($44,X)");
@@ -960,6 +1032,9 @@ fn sei() {
     // Accumulator
     assert_assemble_err!("SEI A");
 
+    // Indirect
+    assert_assemble_err!("SEI ($4400)");
+
     // IndexedIndirect
     assert_assemble_err!("SEI ($44,X)");
 
@@ -998,6 +1073,9 @@ fn inc() {
 
     // Accumulator
     assert_assemble_err!("INC A");
+
+    // Indirect
+    assert_assemble_err!("INC ($4400)");
 
     // IndexedIndirect
     assert_assemble_err!("INC ($44,X)");
@@ -1038,14 +1116,14 @@ fn jmp() {
     // Accumulator
     assert_assemble_err!("JMP A");
 
+    // Indirect
+    assert_assemble!("JMP ($4400)", &[0x6c, 0x0, 0x44]);
+
     // IndexedIndirect
     assert_assemble_err!("JMP ($44,X)");
 
     // IndirectIndexed
     assert_assemble_err!("JMP ($44),Y");
-
-    // Indirect
-    assert_assemble!("JMP ($4400)", &[0x6c, 0x0, 0x44]);
 
     // Immediate
     assert_assemble_err!("JMP #$44");
