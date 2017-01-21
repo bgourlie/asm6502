@@ -1185,3 +1185,129 @@ fn jsr() {
     // ZeroPageY
     assert_assemble_err!("JSR $44,Y");
 }
+
+#[test]
+fn lda() {
+    // Absolute
+    assert_assemble!("LDA $4400", &[0xad, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble!("LDA $4400,X", &[0xbd, 0x00, 0x44]);
+
+    // AbsoluteY
+    assert_assemble!("LDA $4400,Y", &[0xb9, 0x00, 0x44]);
+
+    // Accumulator
+    assert_assemble_err!("LDA A");
+
+    // Indirect
+    assert_assemble_err!("LDA ($4400)");
+
+    // IndexedIndirect
+    assert_assemble!("LDA ($44,X)", &[0xa1, 0x44]);
+
+    // IndirectIndexed
+    assert_assemble!("LDA ($44),Y", &[0xb1, 0x44]);
+
+    // Immediate
+    assert_assemble!("LDA #$44", &[0xa9, 0x44]);
+
+    // Implied
+    assert_assemble_err!("LDA\n");
+
+    // Relative
+    assert_assemble_err!("LDA -44");
+
+    // ZeroPage
+    assert_assemble!("LDA $44", &[0xa5, 0x44]);
+
+    // ZeroPageX
+    assert_assemble!("LDA $44,X", &[0xb5, 0x44]);
+
+    // ZeroPageY
+    assert_assemble_err!("LDA $44,Y");
+}
+
+#[test]
+fn ldx() {
+    // Absolute
+    assert_assemble!("LDX $4400", &[0xae, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble_err!("LDX $4400,X");
+
+    // AbsoluteY
+    assert_assemble!("LDX $4400,Y", &[0xbe, 0x00, 0x44]);
+
+    // Accumulator
+    assert_assemble_err!("LDX A");
+
+    // Indirect
+    assert_assemble_err!("LDX ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("LDX ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("LDX ($44),Y");
+
+    // Immediate
+    assert_assemble!("LDX #$44", &[0xa2, 0x44]);
+
+    // Implied
+    assert_assemble_err!("LDX\n");
+
+    // Relative
+    assert_assemble_err!("LDX -44");
+
+    // ZeroPage
+    assert_assemble!("LDX $44", &[0xa6, 0x44]);
+
+    // ZeroPageX
+    assert_assemble_err!("LDX $44,X");
+
+    // ZeroPageY
+    assert_assemble!("LDX $44,Y", &[0xb6, 0x44]);
+}
+
+#[test]
+fn ldy() {
+    // Absolute
+    assert_assemble!("LDY $4400", &[0xac, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble!("LDY $4400,X", &[0xbc, 0x00, 0x44]);
+
+    // AbsoluteY
+    assert_assemble_err!("LDY $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("LDY A");
+
+    // Indirect
+    assert_assemble_err!("LDY ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("LDY ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("LDY ($44),Y");
+
+    // Immediate
+    assert_assemble!("LDY #$44", &[0xa0, 0x44]);
+
+    // Implied
+    assert_assemble_err!("LDY\n");
+
+    // Relative
+    assert_assemble_err!("LDY -44");
+
+    // ZeroPage
+    assert_assemble!("LDY $44", &[0xa4, 0x44]);
+
+    // ZeroPageX
+    assert_assemble!("LDY $44,X", &[0xb4, 0x44]);
+
+    // ZeroPageY
+    assert_assemble_err!("LDY $44,Y");
+}
