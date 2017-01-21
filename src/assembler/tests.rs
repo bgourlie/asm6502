@@ -1311,3 +1311,45 @@ fn ldy() {
     // ZeroPageY
     assert_assemble_err!("LDY $44,Y");
 }
+
+#[test]
+fn lsr() {
+    // Absolute
+    assert_assemble!("LSR $4400", &[0x4e, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble!("LSR $4400,X", &[0x5e, 0x00, 0x44]);
+
+    // AbsoluteY
+    assert_assemble_err!("LSR $4400,Y");
+
+    // Indirect
+    assert_assemble_err!("LSR ($4400)");
+
+    // Accumulator
+    assert_assemble!("LSR A", &[0x4a]);
+
+    // IndexedIndirect
+    assert_assemble_err!("LSR ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("LSR ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("LSR #$44");
+
+    // Implied
+    assert_assemble_err!("LSR\n");
+
+    // Relative
+    assert_assemble_err!("LSR -44");
+
+    // ZeroPage
+    assert_assemble!("LSR $44", &[0x46, 0x44]);
+
+    // ZeroPageX
+    assert_assemble!("LSR $44,X", &[0x56, 0x44]);
+
+    // ZeroPageY
+    assert_assemble_err!("LSR $44,Y");
+}

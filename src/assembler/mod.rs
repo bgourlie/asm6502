@@ -52,6 +52,7 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Lda => res = lda(am, writer),
                     Mnemonic::Ldx => res = ldx(am, writer),
                     Mnemonic::Ldy => res = ldy(am, writer),
+                    Mnemonic::Lsr => res = lsr(am, writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
@@ -229,6 +230,17 @@ fn ldy<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
         AddressingMode::Absolute(addr) => memory_word(0xac, addr, writer),
         AddressingMode::AbsoluteX(addr) => memory_word(0xbc, addr, writer),
         _ => Err(format!("Unexpected operand encountered for LDY: {:?}", am)),
+    }
+}
+
+fn lsr<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::Accumulator => byte(0x4a, writer),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x46, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => memory_byte(0x56, addr, writer),
+        AddressingMode::Absolute(addr) => memory_word(0x4e, addr, writer),
+        AddressingMode::AbsoluteX(addr) => memory_word(0x5e, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for LSR: {:?}", am)),
     }
 }
 
