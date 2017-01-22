@@ -2025,3 +2025,255 @@ fn sta() {
     // ZeroPageY
     assert_assemble_err!("STA $44,Y");
 }
+
+#[test]
+fn txs() {
+    // Absolute
+    assert_assemble_err!("TXS $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("TXS $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("TXS $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("TXS A");
+
+    // Indirect
+    assert_assemble_err!("TXS ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("TXS ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("TXS ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("TXS #$44");
+
+    // Implied
+    assert_assemble!("TXS\n", &[0x9a]);
+
+    // Relative
+    assert_assemble_err!("TXS -44");
+
+    // ZeroPage
+    assert_assemble_err!("TXS $44");
+
+    // ZeroPageX
+    assert_assemble_err!("TXS $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("TXS $44,Y");
+}
+
+#[test]
+fn tsx() {
+    // Absolute
+    assert_assemble_err!("TSX $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("TSX $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("TSX $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("TSX A");
+
+    // Indirect
+    assert_assemble_err!("TSX ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("TSX ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("TSX ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("TSX #$44");
+
+    // Implied
+    assert_assemble!("TSX\n", &[0xba]);
+
+    // Relative
+    assert_assemble_err!("TSX -44");
+
+    // ZeroPage
+    assert_assemble_err!("TSX $44");
+
+    // ZeroPageX
+    assert_assemble_err!("TSX $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("TSX $44,Y");
+}
+
+#[test]
+fn pha() {
+    // Absolute
+    assert_assemble_err!("PHA $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("PHA $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("PHA $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("PHA A");
+
+    // Indirect
+    assert_assemble_err!("PHA ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("PHA ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("PHA ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("PHA #$44");
+
+    // Implied
+    assert_assemble!("PHA\n", &[0x48]);
+
+    // Relative
+    assert_assemble_err!("PHA -44");
+
+    // ZeroPage
+    assert_assemble_err!("PHA $44");
+
+    // ZeroPageX
+    assert_assemble_err!("PHA $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("PHA $44,Y");
+}
+
+#[test]
+fn pla() {
+    // Absolute
+    assert_assemble_err!("PLA $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("PLA $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("PLA $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("PLA A");
+
+    // Indirect
+    assert_assemble_err!("PLA ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("PLA ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("PLA ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("PLA #$44");
+
+    // Implied
+    assert_assemble!("PLA\n", &[0x68]);
+
+    // Relative
+    assert_assemble_err!("PLA -44");
+
+    // ZeroPage
+    assert_assemble_err!("PLA $44");
+
+    // ZeroPageX
+    assert_assemble_err!("PLA $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("PLA $44,Y");
+}
+
+#[test]
+fn php() {
+    // Absolute
+    assert_assemble_err!("PHP $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("PHP $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("PHP $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("PHP A");
+
+    // Indirect
+    assert_assemble_err!("PHP ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("PHP ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("PHP ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("PHP #$44");
+
+    // Implied
+    assert_assemble!("PHP\n", &[0x08]);
+
+    // Relative
+    assert_assemble_err!("PHP -44");
+
+    // ZeroPage
+    assert_assemble_err!("PHP $44");
+
+    // ZeroPageX
+    assert_assemble_err!("PHP $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("PHP $44,Y");
+}
+
+#[test]
+fn plp() {
+    // Absolute
+    assert_assemble_err!("PLP $4400");
+
+    // AbsoluteX
+    assert_assemble_err!("PLP $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("PLP $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("PLP A");
+
+    // Indirect
+    assert_assemble_err!("PLP ($4400)");
+
+    // IndexedIndirect
+    a:ssert_assemble_err!("PLP ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("PLP ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("PLP #$44");
+
+    // Implied
+    assert_assemble!("PLP\n", &[0x28]);
+
+    // Relative
+    assert_assemble_err!("PLP -44");
+
+    // ZeroPage
+    assert_assemble_err!("PLP $44");
+
+    // ZeroPageX
+    assert_assemble_err!("PLP $44,X");
+
+    // ZeroPageY
+    assert_assemble_err!("PLP $44,Y");
+}

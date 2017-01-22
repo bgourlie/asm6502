@@ -69,6 +69,12 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Rts => res = implied(0x60, am, "RTS", writer),
                     Mnemonic::Sbc => res = sbc(am, writer),
                     Mnemonic::Sta => res = sta(am, writer),
+                    Mnemonic::Txs => res = implied(0x9a, am, "TXS", writer),
+                    Mnemonic::Tsx => res = implied(0xba, am, "TSX", writer),
+                    Mnemonic::Pha => res = implied(0x48, am, "PHA", writer),
+                    Mnemonic::Pla => res = implied(0x68, am, "PLA", writer),
+                    Mnemonic::Php => res = implied(0x08, am, "PHP", writer),
+                    Mnemonic::Plp => res = implied(0x28, am, "PLP", writer),
                     _ => unimplemented!(),
                 }
                 if res.is_err() {
