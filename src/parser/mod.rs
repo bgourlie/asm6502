@@ -219,7 +219,7 @@ named!(parse_sign <Sign>,
     )
 );
 
-
+#[inline]
 pub fn hex_u16(input: &[u8]) -> IResult<&[u8], u16> {
     match is_a!(input, &b"0123456789abcdefABCDEF"[..]) {
         IResult::Error(e) => IResult::Error(e),
@@ -245,6 +245,7 @@ pub fn hex_u16(input: &[u8]) -> IResult<&[u8], u16> {
     }
 }
 
+#[inline]
 pub fn dec_u16(input: &[u8]) -> IResult<&[u8], u16> {
     match is_a!(input, &b"0123456789"[..]) {
         IResult::Error(e) => IResult::Error(e),
@@ -270,6 +271,7 @@ pub fn dec_u16(input: &[u8]) -> IResult<&[u8], u16> {
     }
 }
 
+#[inline]
 pub fn dec_u8(input: &[u8]) -> IResult<&[u8], u8> {
     match is_a!(input, &b"0123456789"[..]) {
         IResult::Error(e) => IResult::Error(e),
@@ -295,6 +297,7 @@ pub fn dec_u8(input: &[u8]) -> IResult<&[u8], u8> {
     }
 }
 
+#[inline]
 fn hex_u8(input: &[u8]) -> IResult<&[u8], u8> {
     match is_a!(input, &b"0123456789abcdefABCDEF"[..]) {
         IResult::Error(e) => IResult::Error(e),

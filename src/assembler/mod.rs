@@ -87,6 +87,7 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
     }
 }
 
+#[inline]
 fn adc<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(0x69, val, sign, writer),
@@ -101,6 +102,7 @@ fn adc<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn and<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(0x29, val, sign, writer),
@@ -115,6 +117,7 @@ fn and<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn asl<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Accumulator => byte(0x0a, writer),
@@ -126,6 +129,7 @@ fn asl<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn bit<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x24, addr, sign, writer),
@@ -134,11 +138,13 @@ fn bit<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn brk<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     // BRK is a 1 byte instruction but is followed by a padding byte.
     implied(0x0, am, "BRK", writer).and_then(|_| byte(0x0, writer))
 }
 
+#[inline]
 fn cmp<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Absolute(addr) => memory_word(0xcd, addr, writer),
@@ -153,6 +159,7 @@ fn cmp<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn cpx<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(0xe0, val, sign, writer),
@@ -162,6 +169,7 @@ fn cpx<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn cpy<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Absolute(addr) => memory_word(0xcc, addr, writer),
@@ -171,6 +179,7 @@ fn cpy<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn dec<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Absolute(addr) => memory_word(0xce, addr, writer),
@@ -181,6 +190,7 @@ fn dec<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn inc<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Absolute(addr) => memory_word(0xee, addr, writer),
@@ -191,6 +201,7 @@ fn inc<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn eor<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(0x49, val, sign, writer),
@@ -201,10 +212,11 @@ fn eor<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
         AddressingMode::AbsoluteY(addr) => memory_word(0x59, addr, writer),
         AddressingMode::IndexedIndirect(addr) => memory_byte(0x41, addr, writer),
         AddressingMode::IndirectIndexed(addr) => memory_byte(0x51, addr, writer),
-        _ => Err(format!("Unexpected operand encountered for ADC: {:?}", am)),
+        _ => Err(format!("Unexpected operand encountered for EOR: {:?}", am)),
     }
 }
 
+#[inline]
 fn jmp<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Absolute(addr) => memory_word(0x4c, addr, writer),
@@ -213,6 +225,7 @@ fn jmp<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn jsr<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Absolute(addr) => memory_word(0x20, addr, writer),
@@ -220,6 +233,7 @@ fn jsr<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn lda<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(0xa9, val, sign, writer),
@@ -234,6 +248,7 @@ fn lda<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn ldx<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(0xa2, val, sign, writer),
@@ -245,6 +260,7 @@ fn ldx<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn ldy<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(0xa0, val, sign, writer),
@@ -256,6 +272,7 @@ fn ldy<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn lsr<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Accumulator => byte(0x4a, writer),
@@ -267,6 +284,7 @@ fn lsr<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn ora<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(0x09, val, sign, writer),
@@ -281,6 +299,7 @@ fn ora<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn rol<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Accumulator => byte(0x2a, writer),
@@ -292,6 +311,7 @@ fn rol<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn ror<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Accumulator => byte(0x6a, writer),
@@ -303,6 +323,7 @@ fn ror<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn sbc<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(0xe9, val, sign, writer),
@@ -317,6 +338,7 @@ fn sbc<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn sta<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x85, addr, sign, writer),
@@ -330,6 +352,7 @@ fn sta<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn stx<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x86, addr, sign, writer),
@@ -339,6 +362,7 @@ fn stx<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn sty<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     match am {
         AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x84, addr, sign, writer),
@@ -348,22 +372,27 @@ fn sty<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn immediate<T: Write>(opcode: u8, val: u8, sign: Sign, writer: &mut T) -> AssembleResult {
     byte(opcode, writer).and_then(|_| signed(val, sign, writer))
 }
 
+#[inline]
 fn zero_page<T: Write>(opcode: u8, addr: u8, sign: Sign, writer: &mut T) -> AssembleResult {
     err_if_negative(sign).and_then(|_| byte(opcode, writer).and_then(|_| byte(addr, writer)))
 }
 
+#[inline]
 fn memory_word<T: Write>(opcode: u8, addr: u16, writer: &mut T) -> AssembleResult {
     byte(opcode, writer).and_then(|_| word(addr, writer))
 }
 
+#[inline]
 fn memory_byte<T: Write>(opcode: u8, addr: u8, writer: &mut T) -> AssembleResult {
     byte(opcode, writer).and_then(|_| byte(addr, writer))
 }
 
+#[inline]
 fn relative<T: Write>(opcode: u8,
                       am: AddressingMode,
                       mnemonic: &'static str,
@@ -381,6 +410,7 @@ fn relative<T: Write>(opcode: u8,
     }
 }
 
+#[inline]
 fn implied<T: Write>(opcode: u8,
                      am: AddressingMode,
                      mnemonic: &'static str,
@@ -393,6 +423,7 @@ fn implied<T: Write>(opcode: u8,
     }
 }
 
+#[inline]
 fn signed<T: Write>(val: u8, sign: Sign, writer: &mut T) -> AssembleResult {
     match sign {
         Sign::Implied => byte(val, writer),
@@ -414,12 +445,14 @@ fn signed<T: Write>(val: u8, sign: Sign, writer: &mut T) -> AssembleResult {
     }
 }
 
+#[inline]
 fn byte<T: Write>(val: u8, writer: &mut T) -> AssembleResult {
     writer.write(&[val])
         .map(|_| ())
         .map_err(|_| "An error occurred while writing to the buffer".to_owned())
 }
 
+#[inline]
 fn word<T: Write>(val: u16, writer: &mut T) -> AssembleResult {
     let low_byte = (val & 0xff) as u8;
     let high_byte = ((val >> 8) & 0xff) as u8;
@@ -428,6 +461,7 @@ fn word<T: Write>(val: u16, writer: &mut T) -> AssembleResult {
         .map_err(|_| "An error occurred while writing to the buffer".to_owned())
 }
 
+#[inline]
 fn err_if_negative(sign: Sign) -> AssembleResult {
     if sign == Sign::Negative {
         Err("Unexpected signed operand".to_owned())
