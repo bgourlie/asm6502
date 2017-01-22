@@ -2254,7 +2254,7 @@ fn plp() {
     assert_assemble_err!("PLP ($4400)");
 
     // IndexedIndirect
-    a:ssert_assemble_err!("PLP ($44,X)");
+    assert_assemble_err!("PLP ($44,X)");
 
     // IndirectIndexed
     assert_assemble_err!("PLP ($44),Y");
