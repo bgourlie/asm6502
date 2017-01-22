@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate nom;
 
-pub mod assembler;
+mod assembler;
 mod parser;
 mod tokens;
+
+pub use assembler::assemble;

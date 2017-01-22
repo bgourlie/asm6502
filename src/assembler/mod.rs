@@ -8,6 +8,24 @@ use tokens::*;
 
 type AssembleResult = Result<(), String>;
 
+/// Translate 6502 assembly into machine code.
+///
+/// # Examples
+///
+/// ```
+/// use asm6502::assemble;
+/// let asm = "LDA #1\nADC #1\nCMP #2".as_bytes();
+/// let mut buf = Vec::<u8>::new();
+/// if let Err(msg) = assemble(asm, &mut buf) {
+///     panic!("Failed to assemble: {}", msg);
+/// }
+///
+/// assert_eq!(&[0xa9, 0x1, 0x69, 0x1, 0xc9, 0x2], &buf[..]);
+/// ```
+///
+/// The the input and output parameters are generic over the `Read` and `Write` traits,
+/// respectively. A more typical usage of this function would accept an input file and an output
+/// file.
 pub fn assemble<R: Read, W: Write>(mut input: R, output: &mut W) -> AssembleResult {
     let mut buf = Vec::<u8>::new();
     input.read_to_end(&mut buf).map_err(|_| "Error reading input".to_owned())?;
