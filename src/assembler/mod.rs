@@ -75,7 +75,8 @@ pub fn assemble<R: Read, W: Write>(mut input: R, writer: &mut W) -> AssembleResu
                     Mnemonic::Pla => res = implied(0x68, am, "PLA", writer),
                     Mnemonic::Php => res = implied(0x08, am, "PHP", writer),
                     Mnemonic::Plp => res = implied(0x28, am, "PLP", writer),
-                    _ => unimplemented!(),
+                    Mnemonic::Stx => res = stx(am, writer),
+                    Mnemonic::Sty => res = sty(am, writer),
                 }
                 if res.is_err() {
                     break;
@@ -326,6 +327,24 @@ fn sta<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
         AddressingMode::IndexedIndirect(addr) => memory_byte(0x81, addr, writer),
         AddressingMode::IndirectIndexed(addr) => memory_byte(0x91, addr, writer),
         _ => Err(format!("Unexpected operand encountered for STA: {:?}", am)),
+    }
+}
+
+fn stx<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x86, addr, sign, writer),
+        AddressingMode::ZeroPageY(addr) => memory_byte(0x96, addr, writer),
+        AddressingMode::Absolute(addr) => memory_word(0x8e, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for STX: {:?}", am)),
+    }
+}
+
+fn sty<T: Write>(am: AddressingMode, writer: &mut T) -> AssembleResult {
+    match am {
+        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(0x84, addr, sign, writer),
+        AddressingMode::ZeroPageX(addr) => memory_byte(0x94, addr, writer),
+        AddressingMode::Absolute(addr) => memory_word(0x8c, addr, writer),
+        _ => Err(format!("Unexpected operand encountered for STY: {:?}", am)),
     }
 }
 

@@ -2277,3 +2277,87 @@ fn plp() {
     // ZeroPageY
     assert_assemble_err!("PLP $44,Y");
 }
+
+#[test]
+fn stx() {
+    // Absolute
+    assert_assemble!("STX $4400", &[0x8e, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble_err!("STX $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("STX $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("STX A");
+
+    // Indirect
+    assert_assemble_err!("STX ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("STX ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("STX ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("STX #$44");
+
+    // Implied
+    assert_assemble_err!("STX\n");
+
+    // Relative
+    assert_assemble_err!("STX -44");
+
+    // ZeroPage
+    assert_assemble!("STX $44", &[0x86, 0x44]);
+
+    // ZeroPageX
+    assert_assemble_err!("STX $44,X");
+
+    // ZeroPageY
+    assert_assemble!("STX $44,Y", &[0x96, 0x44]);
+}
+
+#[test]
+fn sty() {
+    // Absolute
+    assert_assemble!("STY $4400", &[0x8c, 0x00, 0x44]);
+
+    // AbsoluteX
+    assert_assemble_err!("STY $4400,X");
+
+    // AbsoluteY
+    assert_assemble_err!("STY $4400,Y");
+
+    // Accumulator
+    assert_assemble_err!("STY A");
+
+    // Indirect
+    assert_assemble_err!("STY ($4400)");
+
+    // IndexedIndirect
+    assert_assemble_err!("STY ($44,X)");
+
+    // IndirectIndexed
+    assert_assemble_err!("STY ($44),Y");
+
+    // Immediate
+    assert_assemble_err!("STY #$44");
+
+    // Implied
+    assert_assemble_err!("STY\n");
+
+    // Relative
+    assert_assemble_err!("STY -44");
+
+    // ZeroPage
+    assert_assemble!("STY $44", &[0x84, 0x44]);
+
+    // ZeroPageX
+    assert_assemble!("STY $44,X", &[0x94, 0x44]);
+
+    // ZeroPageY
+    assert_assemble_err!("STY $44,Y");
+}
