@@ -2,7 +2,7 @@
 name = "asm6502"
 version = "0.1.0"
 authors = ["W. Brian Gourlie <bgourlie@gmail.com>"]
-description = "A basic 6502 assembler"
+description = "A basic 6502 assembler."
 license = "MIT"
 repository = "https://github.com/bgourlie/asm6502"
 
