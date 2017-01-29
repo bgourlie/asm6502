@@ -1,6 +1,6 @@
 [package]
 name = "asm6502"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["W. Brian Gourlie <bgourlie@gmail.com>"]
 description = "A basic 6502 assembler."
 license = "MIT"
@@ -9,7 +9,7 @@ readme = "README.md"
 keywords = ["6502", "assembler"]
 
 [badges]
-travis-ci = { repository = "https://github.com/bgourlie/asm6502", branch = "master" }
+travis-ci = { repository = "bgourlie/asm6502", branch = "master" }
 
 [dependencies]
 nom = "^2.0"
