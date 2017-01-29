@@ -23,10 +23,14 @@ if let Err(msg) = assemble(asm, &mut buf) {
 assert_eq!(&[0xa9, 0x1, 0x69, 0x1, 0xc9, 0x2], &buf[..]);
 ```
 
-The the input and output parameters of the `assemble` function are generic over the 
+The input and output parameters of the `assemble` function are generic over the 
 [`Read`](https://doc.rust-lang.org/stable/std/io/trait.Read.html) and 
 [`Write`](https://doc.rust-lang.org/stable/std/io/trait.Write.html) traits, 
 respectively. A more typical usage of this function would accept an input file and an output file.
+
+### Dependency on non-stable features
+
+This crate requires features currently available in the `beta` channel which should stabilize in the 1.15 release.
 
 ### Known Issues
 
