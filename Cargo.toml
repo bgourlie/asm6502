@@ -1,6 +1,6 @@
 [package]
 name = "asm6502"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["W. Brian Gourlie <bgourlie@gmail.com>"]
 description = "A basic 6502 assembler."
 license = "MIT"
