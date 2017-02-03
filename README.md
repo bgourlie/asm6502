@@ -28,10 +28,6 @@ The input and output parameters of the `assemble` function are generic over the
 [`Write`](https://doc.rust-lang.org/stable/std/io/trait.Write.html) traits, 
 respectively. A more typical usage of this function would accept an input file and an output file.
 
-### Dependency on non-stable features
-
-This crate requires features currently available in the `beta` channel which should stabilize in the 1.15 release.
-
 ### Known Issues
 
 If the assembly ends with an implied instruction, it will need to be followed by a newline in order to be parsed
