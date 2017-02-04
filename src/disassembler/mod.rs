@@ -1,3 +1,6 @@
+use serde::{Serialize, Serializer};
+use serde::ser::SerializeStruct;
+
 static INSTR_MASK: u8 = 0b111;
 static INSTR_FAMILY_MASK: u8 = 0b11;
 static ADDRESSING_MODE_MASK: u8 = 0b111;
@@ -8,7 +11,7 @@ pub struct InstructionDecoder<'a> {
     start_offset: u16,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Serialize)]
 pub struct Instruction {
     pub offset: u16,
     pub mnemonic: Mnemonic,
@@ -30,7 +33,60 @@ pub enum AddressingMode {
     Accumulator,
 }
 
-#[derive(Copy, Clone)]
+impl Serialize for AddressingMode {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer
+    {
+        let mut state = serializer.serialize_struct("AddressingMode", 2)?;
+        match *self {
+            AddressingMode::IndexedIndirect(addr) => {
+                state.serialize_field("mode", "IndexedIndirect")?;
+                state.serialize_field("operand", &addr)?;
+            }
+            AddressingMode::IndirectIndexed(addr) => {
+                state.serialize_field("mode", "IndirectIndexed")?;
+                state.serialize_field("operand", &addr)?;
+            }
+            AddressingMode::ZeroPage(addr) => {
+                state.serialize_field("mode", "ZeroPage")?;
+                state.serialize_field("operand", &addr)?;
+            }
+            AddressingMode::Immediate(val) => {
+                state.serialize_field("mode", "Immediate")?;
+                state.serialize_field("operand", &val)?;
+            }
+            AddressingMode::Absolute(addr) => {
+                state.serialize_field("mode", "Absolute")?;
+                state.serialize_field("operand", &addr)?;
+            }
+            AddressingMode::AbsoluteX(addr) => {
+                state.serialize_field("mode", "AbsoluteX")?;
+                state.serialize_field("operand", &addr)?;
+            }
+            AddressingMode::AbsoluteY(addr) => {
+                state.serialize_field("mode", "AbsoluteY")?;
+                state.serialize_field("operand", &addr)?;
+            }
+            AddressingMode::ZeroPageX(addr) => {
+                state.serialize_field("mode", "ZeroPageX")?;
+                state.serialize_field("operand", &addr)?;
+            }
+            AddressingMode::Relative(offset) => {
+                state.serialize_field("mode", "Relative")?;
+                state.serialize_field("operand", &offset)?;
+            }
+            AddressingMode::Implied => {
+                state.serialize_field("mode", "Implied")?;
+            }
+            AddressingMode::Accumulator => {
+                state.serialize_field("mode", "Accumulator")?;
+            }
+        }
+        state.end()
+    }
+}
+
+#[derive(Copy, Clone, Serialize)]
 pub enum Mnemonic {
     ADC,
     AND,
