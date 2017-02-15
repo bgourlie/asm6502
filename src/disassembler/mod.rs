@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod tests;
+
 use serde::{Serialize, Serializer};
 use serde::ser::SerializeStruct;
 
@@ -18,16 +21,18 @@ pub struct Instruction {
     pub addressing_mode: AddressingMode,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum AddressingMode {
     IndexedIndirect(u8),
     IndirectIndexed(u8),
+    Indirect(u16),
     ZeroPage(u8),
     Immediate(u8),
     Absolute(u16),
     AbsoluteX(u16),
     AbsoluteY(u16),
     ZeroPageX(u8),
+    ZeroPageY(u8),
     Relative(i8),
     Implied,
     Accumulator,
@@ -55,6 +60,10 @@ impl Serialize for AddressingMode {
                 state.serialize_field("mode", "Immediate")?;
                 state.serialize_field("operand", &val)?;
             }
+            AddressingMode::Indirect(addr) => {
+                state.serialize_field("mode", "Indirect")?;
+                state.serialize_field("operand", &addr)?;
+            }
             AddressingMode::Absolute(addr) => {
                 state.serialize_field("mode", "Absolute")?;
                 state.serialize_field("operand", &addr)?;
@@ -69,6 +78,10 @@ impl Serialize for AddressingMode {
             }
             AddressingMode::ZeroPageX(addr) => {
                 state.serialize_field("mode", "ZeroPageX")?;
+                state.serialize_field("operand", &addr)?;
+            }
+            AddressingMode::ZeroPageY(addr) => {
+                state.serialize_field("mode", "ZeroPageY")?;
                 state.serialize_field("operand", &addr)?;
             }
             AddressingMode::Relative(offset) => {
@@ -86,7 +99,7 @@ impl Serialize for AddressingMode {
     }
 }
 
-#[derive(Copy, Clone, Serialize)]
+#[derive(Copy, Clone, Eq, Debug, PartialEq, Serialize)]
 pub enum Mnemonic {
     ADC,
     AND,
@@ -275,8 +288,16 @@ impl<'a> InstructionDecoder<'a> {
         self.read16().map(AddressingMode::Absolute)
     }
 
+    fn read_indirect(&mut self) -> Option<AddressingMode> {
+        self.read16().map(AddressingMode::Indirect)
+    }
+
     fn read_zpx(&mut self) -> Option<AddressingMode> {
         self.read8().map(AddressingMode::ZeroPageX)
+    }
+
+    fn read_zpy(&mut self) -> Option<AddressingMode> {
+        self.read8().map(AddressingMode::ZeroPageY)
     }
 
     fn read_absy(&mut self) -> Option<AddressingMode> {
@@ -381,27 +402,37 @@ impl<'a> InstructionDecoder<'a> {
     }
 
     fn decode_family10_addressing_mode(&mut self, opcode: u8) -> Option<AddressingMode> {
-        let am = (opcode >> 2) & ADDRESSING_MODE_MASK;
-        match am {
-            0b0 => self.read_immediate(),
-            0b1 => self.read_zp(),
-            0b10 => Some(AddressingMode::Accumulator),
-            0b11 => self.read_abs(),
-            0b101 => self.read_zpx(),
-            0b111 => self.read_absx(),
-            _ => None,
+        if opcode == 0xb6 || opcode == 0x96 {
+            self.read_zpy() // Special case STX and LDX using ZeroPage,Y
+        } else if opcode == 0xbe {
+            self.read_absy() // Special case LDX using Absolute,Y
+        } else {
+            let am = (opcode >> 2) & ADDRESSING_MODE_MASK;
+            match am {
+                0b0 => self.read_immediate(),
+                0b1 => self.read_zp(),
+                0b10 => Some(AddressingMode::Accumulator),
+                0b11 => self.read_abs(),
+                0b101 => self.read_zpx(),
+                0b111 => self.read_absx(),
+                _ => None,
+            }
         }
     }
 
     fn decode_family00_addressing_mode(&mut self, opcode: u8) -> Option<AddressingMode> {
-        let am = (opcode >> 2) & ADDRESSING_MODE_MASK;
-        match am {
-            0b0 => self.read_immediate(),
-            0b1 => self.read_zp(),
-            0b11 => self.read_abs(),
-            0b101 => self.read_zpx(),
-            0b111 => self.read_absx(),
-            _ => None,
+        if opcode == 0x6c {
+            self.read_indirect() // Special case for indirect jmp
+        } else {
+            let am = (opcode >> 2) & ADDRESSING_MODE_MASK;
+            match am {
+                0b0 => self.read_immediate(),
+                0b1 => self.read_zp(),
+                0b11 => self.read_abs(),
+                0b101 => self.read_zpx(),
+                0b111 => self.read_absx(),
+                _ => None,
+            }
         }
     }
 
