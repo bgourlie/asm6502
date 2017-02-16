@@ -10,15 +10,14 @@ static ADDRESSING_MODE_MASK: u8 = 0b111;
 
 pub struct InstructionDecoder<'a> {
     bytes: &'a [u8],
-    pc: usize,
+    pc: u16,
     start_offset: u16,
 }
 
 #[derive(Copy, Clone, Serialize)]
-pub struct Instruction {
-    pub offset: u16,
-    pub mnemonic: Mnemonic,
-    pub addressing_mode: AddressingMode,
+pub enum Instruction {
+    Known(u16, Mnemonic, AddressingMode),
+    Undefined(u16),
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -224,28 +223,34 @@ impl ToString for Mnemonic {
 }
 
 impl<'a> InstructionDecoder<'a> {
-    pub fn new(bytes: &'a [u8], start_offset: usize) -> Self {
+    pub fn new(bytes: &'a [u8], start_offset: u16) -> Self {
+        Self::new_with_end(bytes, start_offset, None)
+    }
+
+    pub fn new_with_end(bytes: &'a [u8], start_offset: u16, end_offset: Option<u16>) -> Self {
+        let start_index = start_offset as usize;
+        let end_index = match end_offset {
+            Some(offset) => offset as usize,
+            None => bytes.len(),
+        };
+
         InstructionDecoder {
-            bytes: &bytes[start_offset..],
+            bytes: &bytes[start_index..end_index],
             pc: 0,
-            start_offset: start_offset as u16,
+            start_offset: start_offset,
         }
     }
 
-    pub fn read(&mut self) -> Option<Instruction> {
-        self.read_instruction().and_then(|(opcode, instr, offset)| {
-            self.read_addressing_mode(opcode).map(|am| {
-                Instruction {
-                    offset: self.start_offset + offset,
-                    mnemonic: instr,
-                    addressing_mode: am,
-                }
+    fn read(&mut self) -> Option<(Mnemonic, AddressingMode)> {
+        self.read_instruction()
+            .and_then(|(opcode, mnemonic)| {
+                self.read_addressing_mode(opcode)
+                    .map(|am| (mnemonic, am))
             })
-        })
     }
 
     fn read8(&mut self) -> Option<u8> {
-        let pc = self.pc;
+        let pc = self.pc as usize;
         if pc < self.bytes.len() {
             let val = self.bytes[pc];
             self.pc += 1;
@@ -256,7 +261,7 @@ impl<'a> InstructionDecoder<'a> {
     }
 
     fn read16(&mut self) -> Option<u16> {
-        let pc = self.pc;
+        let pc = self.pc as usize;
         if pc + 1 < self.bytes.len() {
             let byte1 = self.bytes[pc];
             let byte2 = self.bytes[pc + 1];
@@ -312,9 +317,8 @@ impl<'a> InstructionDecoder<'a> {
         self.read8().map(|i| i as i8).map(AddressingMode::Relative)
     }
 
-    fn read_instruction(&mut self) -> Option<(u8, Mnemonic, u16)> {
+    fn read_instruction(&mut self) -> Option<(u8, Mnemonic)> {
         self.read8().and_then(|opcode| {
-            let offset = (self.pc as u16) - 1;
             match opcode {
                     0x0 => {
                         self.pc += 1; // Break has an additional padding byte
@@ -363,7 +367,7 @@ impl<'a> InstructionDecoder<'a> {
                         }
                     }
                 }
-                .map(|instr| (opcode, instr, offset))
+                .map(|instr| (opcode, instr))
         })
     }
 
@@ -484,6 +488,15 @@ impl<'a> Iterator for InstructionDecoder<'a> {
     type Item = Instruction;
 
     fn next(&mut self) -> Option<Instruction> {
-        self.read()
+        if self.pc as usize >= self.bytes.len() {
+            None
+        } else {
+            let offset = self.start_offset + self.pc;
+            let instr = self.read().map_or(Instruction::Undefined(offset), |(mnemonic, am)| {
+                Instruction::Known(offset, mnemonic, am)
+            });
+
+            Some(instr)
+        }
     }
 }
