@@ -13,3 +13,6 @@ travis-ci = { repository = "bgourlie/asm6502", branch = "master" }
 
 [dependencies]
 nom = "^2.0"
+serde = {version = "^0.9.2"}
+serde_json = {version = "^0.9.1"}
+serde_derive = {version = "^0.9.2"}
