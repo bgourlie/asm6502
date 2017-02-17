@@ -14,10 +14,31 @@ pub struct InstructionDecoder<'a> {
     start_offset: u16,
 }
 
-#[derive(Copy, Clone, Serialize)]
+#[derive(Copy, Clone)]
 pub enum Instruction {
     Known(u16, Mnemonic, AddressingMode),
     Undefined(u16),
+}
+
+impl Serialize for Instruction {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer
+    {
+        let mut state = serializer.serialize_struct("Instruction", 4)?;
+        match *self {
+            Instruction::Known(offset, mnemonic, am) => {
+                state.serialize_field("offset", &offset)?;
+                state.serialize_field("kind", "Known")?;
+                state.serialize_field("mnemonic", &mnemonic)?;
+                state.serialize_field("am", &am)?;
+            }
+            Instruction::Undefined(offset) => {
+                state.serialize_field("offset", &offset)?;
+                state.serialize_field("kind", "Undefined")?;
+            }
+        }
+        state.end()
+    }
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -492,9 +513,9 @@ impl<'a> Iterator for InstructionDecoder<'a> {
             None
         } else {
             let offset = self.start_offset + self.pc;
-            let instr = self.read().map_or(Instruction::Undefined(offset), |(mnemonic, am)| {
-                Instruction::Known(offset, mnemonic, am)
-            });
+            let instr =
+                self.read().map_or(Instruction::Undefined(offset),
+                                   |(mnemonic, am)| Instruction::Known(offset, mnemonic, am));
 
             Some(instr)
         }
