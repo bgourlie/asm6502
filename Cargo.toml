@@ -7,6 +7,7 @@ license = "MIT"
 repository = "https://github.com/bgourlie/asm6502"
 readme = "README.md"
 keywords = ["6502", "assembler"]
+edition = "2021"
 
 [badges]
 travis-ci = { repository = "bgourlie/asm6502", branch = "master" }

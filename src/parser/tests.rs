@@ -1,6 +1,6 @@
 use nom::IResult;
-use parser::*;
-use tokens::*;
+use crate::parser::*;
+use crate::tokens::*;
 
 macro_rules! assert_parse {
     ( $ left : expr , $ right : expr ) => {

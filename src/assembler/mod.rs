@@ -2,9 +2,9 @@
 mod tests;
 
 use nom::IResult;
-use parser::parse_lines;
+use crate::parser::parse_lines;
 use std::io::{Read, Write};
-use tokens::*;
+use crate::tokens::*;
 
 type AssembleResult = Result<(), String>;
 

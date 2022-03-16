@@ -2,7 +2,7 @@
 mod tests;
 
 use nom::{ErrorKind, IResult, line_ending, space};
-use tokens::*;
+use crate::tokens::*;
 
 named!(pub parse_lines <Vec<OpCode> >, separated_list!(line_ending, opcode));
 

@@ -16,18 +16,18 @@ macro_rules! assert_assemble {
         let asm = $asm;
         let mut buf = Vec::<u8>::new();
         match assemble(asm.as_bytes(), &mut buf) {
-            Err(msg) => panic!(format!("Failed to assemble '{}': {}", asm, msg)),
+            Err(msg) => panic!("Failed to assemble '{}': {}", asm, msg),
             _ => {
                 let expected = $expected;
                 let buf = &buf[..];
                 if expected.len() != buf.len() {
-                    panic!(format!("Expected number of bytes written for '{}' to be {} but was {}",
-                            asm, expected.len(), buf.len()))
+                    panic!("Expected number of bytes written for '{}' to be {} but was {}",
+                            asm, expected.len(), buf.len())
                 }
 
                 if expected != &buf[..] {
-                    panic!(format!("Expected '{}' to compile to {:?} but was {:?}",
-                            asm, expected, buf))
+                    panic!("Expected '{}' to compile to {:?} but was {:?}",
+                            asm, expected, buf)
                 }
             }
         }
