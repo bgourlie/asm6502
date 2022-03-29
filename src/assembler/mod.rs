@@ -30,11 +30,8 @@ pub fn assemble<R: Read, W: Write>(mut input: R, output: &mut W) -> AssembleResu
     let mut buf = Vec::<u8>::new();
     input.read_to_end(&mut buf).map_err(|_| "Error reading input".to_owned())?;
     match parse_lines(&buf) {
-        IResult::Error(_) => Err("An error occurred while parsing".to_owned()),
-        IResult::Incomplete(_) => {
-            Err("An error occurred while parsing. Need more input.".to_owned())
-        }
-        IResult::Done(_, opcodes) => {
+        IResult::Err(_) => Err("An error occurred while parsing".to_owned()),
+        IResult::Ok((_, opcodes)) => {
             let mut res: AssembleResult = Ok(());
             for opcode in opcodes {
                 let OpCode(mnemonic, am) = opcode;

@@ -13,4 +13,4 @@ edition = "2021"
 travis-ci = { repository = "bgourlie/asm6502", branch = "master" }
 
 [dependencies]
-nom = "^2.0"
+nom = "7.0"
