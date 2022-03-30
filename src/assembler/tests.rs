@@ -6,7 +6,7 @@ macro_rules! assert_assemble_err {
         let asm = $asm;
         match assemble(asm.as_bytes(), &mut buf) {
             Ok(_) => panic!("Expected error"),
-            _ => ()
+            _ => (),
         }
     };
 }
@@ -16,22 +16,22 @@ macro_rules! assert_assemble {
         let asm = $asm;
         let mut buf = Vec::<u8>::new();
         match assemble(asm.as_bytes(), &mut buf) {
-            Err(msg) => panic!(format!("Failed to assemble '{}': {}", asm, msg)),
+            Err(msg) => panic!("Failed to assemble '{}': {}", asm, msg),
             _ => {
                 let expected = $expected;
                 let buf = &buf[..];
                 if expected.len() != buf.len() {
-                    panic!(format!("Expected number of bytes written for '{}' to be {} but was {}",
-                            asm, expected.len(), buf.len()))
+                    panic!("Expected number of bytes written for '{}' to be {} but was {}",
+                            asm, expected.len(), buf.len())
                 }
 
                 if expected != &buf[..] {
-                    panic!(format!("Expected '{}' to compile to {:?} but was {:?}",
-                            asm, expected, buf))
+                    panic!("Expected '{}' to compile to {:?} but was {:?}",
+                            asm, expected, buf)
                 }
             }
         }
-    }}
+    }};
 }
 
 #[test]
@@ -61,7 +61,7 @@ fn adc() {
     assert_assemble!("ADC #$44", &[0x69, 0x44]);
 
     // Implied
-    assert_assemble_err!("ADC\n");
+    assert_assemble_err!("ADC");
 
     // Relative
     assert_assemble_err!("ADC -44");
@@ -103,7 +103,7 @@ fn and() {
     assert_assemble!("AND #$44", &[0x29, 0x44]);
 
     // Implied
-    assert_assemble_err!("AND\n");
+    assert_assemble_err!("AND");
 
     // Relative
     assert_assemble_err!("ADC -44");
@@ -145,7 +145,7 @@ fn asl() {
     assert_assemble_err!("ASL #$44");
 
     // Implied
-    assert_assemble_err!("ASL\n");
+    assert_assemble_err!("ASL");
 
     // Relative
     assert_assemble_err!("ASL -44");
@@ -187,7 +187,7 @@ fn bit() {
     assert_assemble_err!("BIT #$44");
 
     // Implied
-    assert_assemble_err!("BIT\n");
+    assert_assemble_err!("BIT");
 
     // Relative
     assert_assemble_err!("BIT -44");
@@ -229,7 +229,7 @@ fn bcc() {
     assert_assemble_err!("BCC #$44");
 
     // Implied
-    assert_assemble_err!("BCC\n");
+    assert_assemble_err!("BCC");
 
     // Relative
     assert_assemble!("BCC -44", &[0x90, 0xd4]);
@@ -268,7 +268,7 @@ fn bcs() {
     assert_assemble_err!("BCS #$44");
 
     // Implied
-    assert_assemble_err!("BCS\n");
+    assert_assemble_err!("BCS");
 
     // Relative
     assert_assemble!("BCS -44", &[0xb0, 0xd4]);
@@ -307,7 +307,7 @@ fn beq() {
     assert_assemble_err!("BEQ #$44");
 
     // Implied
-    assert_assemble_err!("BEQ\n");
+    assert_assemble_err!("BEQ");
 
     // Relative
     assert_assemble!("BEQ -44", &[0xf0, 0xd4]);
@@ -346,7 +346,7 @@ fn bmi() {
     assert_assemble_err!("BMI #$44");
 
     // Implied
-    assert_assemble_err!("BMI\n");
+    assert_assemble_err!("BMI");
 
     // Relative
     assert_assemble!("BMI -44", &[0x30, 0xd4]);
@@ -385,7 +385,7 @@ fn bne() {
     assert_assemble_err!("BNE #$44");
 
     // Implied
-    assert_assemble_err!("BNE\n");
+    assert_assemble_err!("BNE");
 
     // Relative
     assert_assemble!("BNE -44", &[0xd0, 0xd4]);
@@ -424,7 +424,7 @@ fn bpl() {
     assert_assemble_err!("BPL #$44");
 
     // Implied
-    assert_assemble_err!("BPL\n");
+    assert_assemble_err!("BPL");
 
     // Relative
     assert_assemble!("BPL -44", &[0x10, 0xd4]);
@@ -463,7 +463,7 @@ fn bvc() {
     assert_assemble_err!("BVC #$44");
 
     // Implied
-    assert_assemble_err!("BVC\n");
+    assert_assemble_err!("BVC");
 
     // Relative
     assert_assemble!("BVC -44", &[0x50, 0xd4]);
@@ -502,7 +502,7 @@ fn bvs() {
     assert_assemble_err!("BVS #$44");
 
     // Implied
-    assert_assemble_err!("BVS\n");
+    assert_assemble_err!("BVS");
 
     // Relative
     assert_assemble!("BVS -44", &[0x70, 0xd4]);
@@ -541,7 +541,7 @@ fn brk() {
     assert_assemble_err!("BRK #$44");
 
     // Implied
-    assert_assemble!("BRK\n", &[0x0, 0x0]);
+    assert_assemble!("BRK", &[0x0, 0x0]);
 
     // Relative
     assert_assemble_err!("BRK -44");
@@ -583,7 +583,7 @@ fn cmp() {
     assert_assemble!("CMP #$44", &[0xc9, 0x44]);
 
     // Implied
-    assert_assemble_err!("CMP\n");
+    assert_assemble_err!("CMP");
 
     // ZeroPage
     assert_assemble!("CMP $44", &[0xc5, 0x44]);
@@ -625,7 +625,7 @@ fn cpx() {
     assert_assemble!("CPX #$44", &[0xe0, 0x44]);
 
     // Implied
-    assert_assemble_err!("CPX\n");
+    assert_assemble_err!("CPX");
 
     // Relative
     assert_assemble_err!("CPX -44");
@@ -667,7 +667,7 @@ fn cpy() {
     assert_assemble!("CPY #$44", &[0xc0, 0x44]);
 
     // Implied
-    assert_assemble_err!("CPY\n");
+    assert_assemble_err!("CPY");
 
     // Relative
     assert_assemble_err!("CPY -44");
@@ -709,7 +709,7 @@ fn dec() {
     assert_assemble_err!("DEC #$44");
 
     // Implied
-    assert_assemble_err!("DEC\n");
+    assert_assemble_err!("DEC");
 
     // Relative
     assert_assemble_err!("DEC -44");
@@ -751,7 +751,7 @@ fn eor() {
     assert_assemble!("EOR #$44", &[0x49, 0x44]);
 
     // Implied
-    assert_assemble_err!("EOR\n");
+    assert_assemble_err!("EOR");
 
     // Relative
     assert_assemble_err!("EOR -44");
@@ -793,7 +793,7 @@ fn clc() {
     assert_assemble_err!("CLC #$44");
 
     // Implied
-    assert_assemble!("CLC\n", &[0x18]);
+    assert_assemble!("CLC", &[0x18]);
 
     // Relative
     assert_assemble_err!("CLC -44");
@@ -835,7 +835,7 @@ fn cld() {
     assert_assemble_err!("CLD #$44");
 
     // Implied
-    assert_assemble!("CLD\n", &[0xd8]);
+    assert_assemble!("CLD", &[0xd8]);
 
     // Relative
     assert_assemble_err!("CLD -44");
@@ -877,7 +877,7 @@ fn cli() {
     assert_assemble_err!("CLI #$44");
 
     // Implied
-    assert_assemble!("CLI\n", &[0x58]);
+    assert_assemble!("CLI", &[0x58]);
 
     // Relative
     assert_assemble_err!("CLI -44");
@@ -919,7 +919,7 @@ fn clv() {
     assert_assemble_err!("CLV #$44");
 
     // Implied
-    assert_assemble!("CLV\n", &[0xb8]);
+    assert_assemble!("CLV", &[0xb8]);
 
     // Relative
     assert_assemble_err!("CLV -44");
@@ -961,7 +961,7 @@ fn sec() {
     assert_assemble_err!("SEC #$44");
 
     // Implied
-    assert_assemble!("SEC\n", &[0x38]);
+    assert_assemble!("SEC", &[0x38]);
 
     // Relative
     assert_assemble_err!("SEC -44");
@@ -1003,7 +1003,7 @@ fn sed() {
     assert_assemble_err!("SED #$44");
 
     // Implied
-    assert_assemble!("SED\n", &[0xf8]);
+    assert_assemble!("SED", &[0xf8]);
 
     // Relative
     assert_assemble_err!("SED -44");
@@ -1045,7 +1045,7 @@ fn sei() {
     assert_assemble_err!("SEI #$44");
 
     // Implied
-    assert_assemble!("SEI\n", &[0x78]);
+    assert_assemble!("SEI", &[0x78]);
 
     // Relative
     assert_assemble_err!("SEI -44");
@@ -1087,7 +1087,7 @@ fn inc() {
     assert_assemble_err!("INC #$44");
 
     // Implied
-    assert_assemble_err!("INC\n");
+    assert_assemble_err!("INC");
 
     // Relative
     assert_assemble_err!("INC -44");
@@ -1129,7 +1129,7 @@ fn jmp() {
     assert_assemble_err!("JMP #$44");
 
     // Implied
-    assert_assemble_err!("JMP\n");
+    assert_assemble_err!("JMP");
 
     // Relative
     assert_assemble_err!("JMP -44");
@@ -1171,7 +1171,7 @@ fn jsr() {
     assert_assemble_err!("JSR #$44");
 
     // Implied
-    assert_assemble_err!("JSR\n");
+    assert_assemble_err!("JSR");
 
     // Relative
     assert_assemble_err!("JSR -44");
@@ -1213,7 +1213,7 @@ fn lda() {
     assert_assemble!("LDA #$44", &[0xa9, 0x44]);
 
     // Implied
-    assert_assemble_err!("LDA\n");
+    assert_assemble_err!("LDA");
 
     // Relative
     assert_assemble_err!("LDA -44");
@@ -1255,7 +1255,7 @@ fn ldx() {
     assert_assemble!("LDX #$44", &[0xa2, 0x44]);
 
     // Implied
-    assert_assemble_err!("LDX\n");
+    assert_assemble_err!("LDX");
 
     // Relative
     assert_assemble_err!("LDX -44");
@@ -1297,7 +1297,7 @@ fn ldy() {
     assert_assemble!("LDY #$44", &[0xa0, 0x44]);
 
     // Implied
-    assert_assemble_err!("LDY\n");
+    assert_assemble_err!("LDY");
 
     // Relative
     assert_assemble_err!("LDY -44");
@@ -1339,7 +1339,7 @@ fn lsr() {
     assert_assemble_err!("LSR #$44");
 
     // Implied
-    assert_assemble_err!("LSR\n");
+    assert_assemble_err!("LSR");
 
     // Relative
     assert_assemble_err!("LSR -44");
@@ -1381,7 +1381,7 @@ fn nop() {
     assert_assemble_err!("NOP #$44");
 
     // Implied
-    assert_assemble!("NOP\n", &[0xea]);
+    assert_assemble!("NOP", &[0xea]);
 
     // Relative
     assert_assemble_err!("NOP -44");
@@ -1423,7 +1423,7 @@ fn ora() {
     assert_assemble!("ORA #$44", &[0x09, 0x44]);
 
     // Implied
-    assert_assemble_err!("ORA\n");
+    assert_assemble_err!("ORA");
 
     // Relative
     assert_assemble_err!("ORA -44");
@@ -1465,7 +1465,7 @@ fn tax() {
     assert_assemble_err!("TAX #$44");
 
     // Implied
-    assert_assemble!("TAX\n", &[0xaa]);
+    assert_assemble!("TAX", &[0xaa]);
 
     // Relative
     assert_assemble_err!("TAX -44");
@@ -1507,7 +1507,7 @@ fn txa() {
     assert_assemble_err!("TXA #$44");
 
     // Implied
-    assert_assemble!("TXA\n", &[0x8a]);
+    assert_assemble!("TXA", &[0x8a]);
 
     // Relative
     assert_assemble_err!("TXA -44");
@@ -1549,7 +1549,7 @@ fn dex() {
     assert_assemble_err!("DEX #$44");
 
     // Implied
-    assert_assemble!("DEX\n", &[0xca]);
+    assert_assemble!("DEX", &[0xca]);
 
     // Relative
     assert_assemble_err!("DEX -44");
@@ -1591,7 +1591,7 @@ fn inx() {
     assert_assemble_err!("INX #$44");
 
     // Implied
-    assert_assemble!("INX\n", &[0xe8]);
+    assert_assemble!("INX", &[0xe8]);
 
     // Relative
     assert_assemble_err!("INX -44");
@@ -1633,7 +1633,7 @@ fn tay() {
     assert_assemble_err!("TAY #$44");
 
     // Implied
-    assert_assemble!("TAY\n", &[0xa8]);
+    assert_assemble!("TAY", &[0xa8]);
 
     // Relative
     assert_assemble_err!("TAY -44");
@@ -1675,7 +1675,7 @@ fn tya() {
     assert_assemble_err!("TYA #$44");
 
     // Implied
-    assert_assemble!("TYA\n", &[0x98]);
+    assert_assemble!("TYA", &[0x98]);
 
     // Relative
     assert_assemble_err!("TYA -44");
@@ -1717,7 +1717,7 @@ fn dey() {
     assert_assemble_err!("DEY #$44");
 
     // Implied
-    assert_assemble!("DEY\n", &[0x88]);
+    assert_assemble!("DEY", &[0x88]);
 
     // Relative
     assert_assemble_err!("DEY -44");
@@ -1759,7 +1759,7 @@ fn iny() {
     assert_assemble_err!("INY #$44");
 
     // Implied
-    assert_assemble!("INY\n", &[0xc8]);
+    assert_assemble!("INY", &[0xc8]);
 
     // Relative
     assert_assemble_err!("INY -44");
@@ -1801,7 +1801,7 @@ fn rol() {
     assert_assemble_err!("ROL #$44");
 
     // Implied
-    assert_assemble_err!("ROL\n");
+    assert_assemble_err!("ROL");
 
     // Relative
     assert_assemble_err!("ROL -44");
@@ -1843,7 +1843,7 @@ fn ror() {
     assert_assemble_err!("ROR #$44");
 
     // Implied
-    assert_assemble_err!("ROR\n");
+    assert_assemble_err!("ROR");
 
     // Relative
     assert_assemble_err!("ROR -44");
@@ -1885,7 +1885,7 @@ fn rti() {
     assert_assemble_err!("RTI #$44");
 
     // Implied
-    assert_assemble!("RTI\n", &[0x40]);
+    assert_assemble!("RTI", &[0x40]);
 
     // Relative
     assert_assemble_err!("RTI -44");
@@ -1927,7 +1927,7 @@ fn rts() {
     assert_assemble_err!("RTS #$44");
 
     // Implied
-    assert_assemble!("RTS\n", &[0x60]);
+    assert_assemble!("RTS", &[0x60]);
 
     // Relative
     assert_assemble_err!("RTS -44");
@@ -1969,7 +1969,7 @@ fn sbc() {
     assert_assemble!("SBC #$44", &[0xe9, 0x44]);
 
     // Implied
-    assert_assemble_err!("SBC\n");
+    assert_assemble_err!("SBC");
 
     // Relative
     assert_assemble_err!("SBC -44");
@@ -2011,7 +2011,7 @@ fn sta() {
     assert_assemble_err!("STA #$44");
 
     // Implied
-    assert_assemble_err!("STA\n");
+    assert_assemble_err!("STA");
 
     // Relative
     assert_assemble_err!("STA -44");
@@ -2053,7 +2053,7 @@ fn txs() {
     assert_assemble_err!("TXS #$44");
 
     // Implied
-    assert_assemble!("TXS\n", &[0x9a]);
+    assert_assemble!("TXS", &[0x9a]);
 
     // Relative
     assert_assemble_err!("TXS -44");
@@ -2095,7 +2095,7 @@ fn tsx() {
     assert_assemble_err!("TSX #$44");
 
     // Implied
-    assert_assemble!("TSX\n", &[0xba]);
+    assert_assemble!("TSX", &[0xba]);
 
     // Relative
     assert_assemble_err!("TSX -44");
@@ -2137,7 +2137,7 @@ fn pha() {
     assert_assemble_err!("PHA #$44");
 
     // Implied
-    assert_assemble!("PHA\n", &[0x48]);
+    assert_assemble!("PHA", &[0x48]);
 
     // Relative
     assert_assemble_err!("PHA -44");
@@ -2179,7 +2179,7 @@ fn pla() {
     assert_assemble_err!("PLA #$44");
 
     // Implied
-    assert_assemble!("PLA\n", &[0x68]);
+    assert_assemble!("PLA", &[0x68]);
 
     // Relative
     assert_assemble_err!("PLA -44");
@@ -2221,7 +2221,7 @@ fn php() {
     assert_assemble_err!("PHP #$44");
 
     // Implied
-    assert_assemble!("PHP\n", &[0x08]);
+    assert_assemble!("PHP", &[0x08]);
 
     // Relative
     assert_assemble_err!("PHP -44");
@@ -2263,7 +2263,7 @@ fn plp() {
     assert_assemble_err!("PLP #$44");
 
     // Implied
-    assert_assemble!("PLP\n", &[0x28]);
+    assert_assemble!("PLP", &[0x28]);
 
     // Relative
     assert_assemble_err!("PLP -44");
@@ -2305,7 +2305,7 @@ fn stx() {
     assert_assemble_err!("STX #$44");
 
     // Implied
-    assert_assemble_err!("STX\n");
+    assert_assemble_err!("STX");
 
     // Relative
     assert_assemble_err!("STX -44");
@@ -2347,7 +2347,7 @@ fn sty() {
     assert_assemble_err!("STY #$44");
 
     // Implied
-    assert_assemble_err!("STY\n");
+    assert_assemble_err!("STY");
 
     // Relative
     assert_assemble_err!("STY -44");

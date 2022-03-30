@@ -1,10 +1,10 @@
 use nom::IResult;
-use parser::*;
-use tokens::*;
+use crate::parser::*;
+use crate::tokens::*;
 
 macro_rules! assert_parse {
     ( $ left : expr , $ right : expr ) => {
-        if let IResult::Done(_, actual) = $right {
+        if let IResult::Ok((_, actual)) = $right {
             assert_eq!($left, actual)
         } else {
             panic!("Expected parse result to be {:?}, but parsing failed with: {:?}",
@@ -35,8 +35,11 @@ macro_rules! assert_mnemonic_parse {
 
 macro_rules! assert_parse_fail {
     ( $ result : expr ) => {
-        if let IResult::Done(_, actual) = $result {
-            panic!("Expected parsing to fail, but it succeeded with: {:?}", actual);
+        if let IResult::Ok((_, actual)) = $result {
+            panic!(
+                "Expected parsing to fail, but it succeeded with: {:?}",
+                actual
+            );
         }
     };
 }
@@ -103,156 +106,163 @@ fn parse_mnemonic() {
 
 #[test]
 fn parse_accumulator() {
-    assert_am_parse!(" A", AddressingMode::Accumulator);
+    assert_am_parse!("A", AddressingMode::Accumulator);
 }
 
 #[test]
 fn parse_immediate_hex() {
-    assert_am_parse!(" #$1", AddressingMode::Immediate(0x1, Sign::Implied));
-    assert_am_parse!(" #$10", AddressingMode::Immediate(0x10, Sign::Implied));
-    assert_am_parse!(" #$ff", AddressingMode::Immediate(0xff, Sign::Implied));
+    assert_am_parse!("#$1", AddressingMode::Immediate(0x1, Sign::Implied));
+    assert_am_parse!("#$10", AddressingMode::Immediate(0x10, Sign::Implied));
+    assert_am_parse!("#$ff", AddressingMode::Immediate(0xff, Sign::Implied));
     assert_parse_fail!(addressing_mode(" #$100".as_bytes()));
 }
 
 #[test]
 fn parse_immediate_dec() {
-    assert_am_parse!(" #1", AddressingMode::Immediate(1, Sign::Implied));
-    assert_am_parse!(" #10", AddressingMode::Immediate(10, Sign::Implied));
-    assert_am_parse!(" #255", AddressingMode::Immediate(255, Sign::Implied));
-    assert_am_parse!(" #-10", AddressingMode::Immediate(10, Sign::Negative));
+    assert_am_parse!("#1", AddressingMode::Immediate(1, Sign::Implied));
+    assert_am_parse!("#10", AddressingMode::Immediate(10, Sign::Implied));
+    assert_am_parse!("#255", AddressingMode::Immediate(255, Sign::Implied));
+    assert_am_parse!("#-10", AddressingMode::Immediate(10, Sign::Negative));
     assert_parse_fail!(addressing_mode(" #256".as_bytes()));
 }
 
 #[test]
 fn parse_absolute_x_hex() {
-    assert_am_parse!(" $ffff,X", AddressingMode::AbsoluteX(0xffff));
-    assert_am_parse!(" $1000,X", AddressingMode::AbsoluteX(0x1000));
-    assert_am_parse!(" $100,X", AddressingMode::AbsoluteX(0x100));
+    assert_am_parse!("$ffff,X", AddressingMode::AbsoluteX(0xffff));
+    assert_am_parse!("$1000,X", AddressingMode::AbsoluteX(0x1000));
+    assert_am_parse!("$100,X", AddressingMode::AbsoluteX(0x100));
 }
 
 #[test]
 fn parse_absolute_x_dec() {
-    assert_am_parse!(" 65535,X", AddressingMode::AbsoluteX(65535));
-    assert_am_parse!(" 1000,X", AddressingMode::AbsoluteX(1000));
-    assert_am_parse!(" 256,X", AddressingMode::AbsoluteX(256));
+    assert_am_parse!("65535,X", AddressingMode::AbsoluteX(65535));
+    assert_am_parse!("1000,X", AddressingMode::AbsoluteX(1000));
+    assert_am_parse!("256,X", AddressingMode::AbsoluteX(256));
 }
 
 #[test]
 fn parse_absolute_y_hex() {
-    assert_am_parse!(" $ffff,Y", AddressingMode::AbsoluteY(0xffff));
-    assert_am_parse!(" $1000,Y", AddressingMode::AbsoluteY(0x1000));
-    assert_am_parse!(" $100,Y", AddressingMode::AbsoluteY(0x100));
+    assert_am_parse!("$ffff,Y", AddressingMode::AbsoluteY(0xffff));
+    assert_am_parse!("$1000,Y", AddressingMode::AbsoluteY(0x1000));
+    assert_am_parse!("$100,Y", AddressingMode::AbsoluteY(0x100));
 }
 
 #[test]
 fn parse_absolute_y_dec() {
-    assert_am_parse!(" 65535,Y", AddressingMode::AbsoluteY(65535));
-    assert_am_parse!(" 1000,Y", AddressingMode::AbsoluteY(1000));
-    assert_am_parse!(" 256,Y", AddressingMode::AbsoluteY(256));
+    assert_am_parse!("65535,Y", AddressingMode::AbsoluteY(65535));
+    assert_am_parse!("1000,Y", AddressingMode::AbsoluteY(1000));
+    assert_am_parse!("256,Y", AddressingMode::AbsoluteY(256));
 }
 
 #[test]
 fn parse_indexed_indirect_hex() {
-    assert_am_parse!(" ($ff,X)", AddressingMode::IndexedIndirect(0xff));
-    assert_am_parse!(" ($0,X)", AddressingMode::IndexedIndirect(0x0));
-    assert_am_parse!(" ($10,X)", AddressingMode::IndexedIndirect(0x10));
+    assert_am_parse!("($ff,X)", AddressingMode::IndexedIndirect(0xff));
+    assert_am_parse!("($0,X)", AddressingMode::IndexedIndirect(0x0));
+    assert_am_parse!("($10,X)", AddressingMode::IndexedIndirect(0x10));
 }
 
 #[test]
 fn parse_indexed_indirect_dec() {
-    assert_am_parse!(" (255,X)", AddressingMode::IndexedIndirect(255));
-    assert_am_parse!(" (0,X)", AddressingMode::IndexedIndirect(0));
-    assert_am_parse!(" (10,X)", AddressingMode::IndexedIndirect(10));
+    assert_am_parse!("(255,X)", AddressingMode::IndexedIndirect(255));
+    assert_am_parse!("(0,X)", AddressingMode::IndexedIndirect(0));
+    assert_am_parse!("(10,X)", AddressingMode::IndexedIndirect(10));
 }
 
 #[test]
 fn parse_indirect_indexed_hex() {
-    assert_am_parse!(" ($ff),Y", AddressingMode::IndirectIndexed(0xff));
-    assert_am_parse!(" ($0),Y", AddressingMode::IndirectIndexed(0x0));
-    assert_am_parse!(" ($10),Y", AddressingMode::IndirectIndexed(0x10));
+    assert_am_parse!("($ff),Y", AddressingMode::IndirectIndexed(0xff));
+    assert_am_parse!("($0),Y", AddressingMode::IndirectIndexed(0x0));
+    assert_am_parse!("($10),Y", AddressingMode::IndirectIndexed(0x10));
 }
 
 #[test]
 fn parse_indirect_indexed_dec() {
-    assert_am_parse!(" (255),Y", AddressingMode::IndirectIndexed(255));
-    assert_am_parse!(" (0),Y", AddressingMode::IndirectIndexed(0));
-    assert_am_parse!(" (10),Y", AddressingMode::IndirectIndexed(10));
+    assert_am_parse!("(255),Y", AddressingMode::IndirectIndexed(255));
+    assert_am_parse!("(0),Y", AddressingMode::IndirectIndexed(0));
+    assert_am_parse!("(10),Y", AddressingMode::IndirectIndexed(10));
 }
 
 #[test]
 fn parse_indirect_hex() {
-    assert_am_parse!(" ($ffff)", AddressingMode::Indirect(0xffff));
-    assert_am_parse!(" ($00)", AddressingMode::Indirect(0x0));
-    assert_am_parse!(" ($100)", AddressingMode::Indirect(0x100));
+    assert_am_parse!("($ffff)", AddressingMode::Indirect(0xffff));
+    assert_am_parse!("($00)", AddressingMode::Indirect(0x0));
+    assert_am_parse!("($100)", AddressingMode::Indirect(0x100));
 }
 
 #[test]
 fn parse_indirect_dec() {
-    assert_am_parse!(" (65535)", AddressingMode::Indirect(65535));
-    assert_am_parse!(" (0)", AddressingMode::Indirect(0));
-    assert_am_parse!(" (10)", AddressingMode::Indirect(10));
+    assert_am_parse!("(65535)", AddressingMode::Indirect(65535));
+    assert_am_parse!("(0)", AddressingMode::Indirect(0));
+    assert_am_parse!("(10)", AddressingMode::Indirect(10));
 }
 
 #[test]
 fn parse_zero_page_or_relative_hex() {
-    assert_am_parse!(" $ff",
-                     AddressingMode::ZeroPageOrRelative(0xff, Sign::Implied));
-    assert_am_parse!(" $0",
-                     AddressingMode::ZeroPageOrRelative(0x0, Sign::Implied));
-    assert_am_parse!(" $10",
-                     AddressingMode::ZeroPageOrRelative(0x10, Sign::Implied));
+    assert_am_parse!(
+        "$ff",
+        AddressingMode::ZeroPageOrRelative(0xff, Sign::Implied)
+    );
+    assert_am_parse!("$0", AddressingMode::ZeroPageOrRelative(0x0, Sign::Implied));
+    assert_am_parse!(
+        "$10",
+        AddressingMode::ZeroPageOrRelative(0x10, Sign::Implied)
+    );
 }
 
 #[test]
 fn parse_zero_page_or_relative_dec() {
-    assert_am_parse!(" 255",
-                     AddressingMode::ZeroPageOrRelative(255, Sign::Implied));
-    assert_am_parse!(" 0", AddressingMode::ZeroPageOrRelative(0, Sign::Implied));
-    assert_am_parse!(" 10", AddressingMode::ZeroPageOrRelative(10, Sign::Implied));
-    assert_am_parse!(" -10",
-                     AddressingMode::ZeroPageOrRelative(10, Sign::Negative));
+    assert_am_parse!(
+        "255",
+        AddressingMode::ZeroPageOrRelative(255, Sign::Implied)
+    );
+    assert_am_parse!("0", AddressingMode::ZeroPageOrRelative(0, Sign::Implied));
+    assert_am_parse!("10", AddressingMode::ZeroPageOrRelative(10, Sign::Implied));
+    assert_am_parse!(
+        "-10",
+        AddressingMode::ZeroPageOrRelative(10, Sign::Negative)
+    );
 }
 
 #[test]
 fn parse_zero_page_x_hex() {
-    assert_am_parse!(" $ff,X", AddressingMode::ZeroPageX(0xff));
-    assert_am_parse!(" $0,X", AddressingMode::ZeroPageX(0x0));
-    assert_am_parse!(" $10,X", AddressingMode::ZeroPageX(0x10));
+    assert_am_parse!("$ff,X", AddressingMode::ZeroPageX(0xff));
+    assert_am_parse!("$0,X", AddressingMode::ZeroPageX(0x0));
+    assert_am_parse!("$10,X", AddressingMode::ZeroPageX(0x10));
 }
 
 #[test]
 fn parse_zero_page_x_dec() {
-    assert_am_parse!(" 255,X", AddressingMode::ZeroPageX(255));
-    assert_am_parse!(" 0,X", AddressingMode::ZeroPageX(0));
-    assert_am_parse!(" 10,X", AddressingMode::ZeroPageX(10));
+    assert_am_parse!("255,X", AddressingMode::ZeroPageX(255));
+    assert_am_parse!("0,X", AddressingMode::ZeroPageX(0));
+    assert_am_parse!("10,X", AddressingMode::ZeroPageX(10));
 }
 
 #[test]
 fn parse_zero_page_y_hex() {
-    assert_am_parse!(" $ff,Y", AddressingMode::ZeroPageY(0xff));
-    assert_am_parse!(" $0,Y", AddressingMode::ZeroPageY(0x0));
-    assert_am_parse!(" $10,Y", AddressingMode::ZeroPageY(0x10));
+    assert_am_parse!("$ff,Y", AddressingMode::ZeroPageY(0xff));
+    assert_am_parse!("$0,Y", AddressingMode::ZeroPageY(0x0));
+    assert_am_parse!("$10,Y", AddressingMode::ZeroPageY(0x10));
 }
 
 #[test]
 fn parse_zero_page_y_dec() {
-    assert_am_parse!(" 255,Y", AddressingMode::ZeroPageY(255));
-    assert_am_parse!(" 0,Y", AddressingMode::ZeroPageY(0));
-    assert_am_parse!(" 10,Y", AddressingMode::ZeroPageY(10));
+    assert_am_parse!("255,Y", AddressingMode::ZeroPageY(255));
+    assert_am_parse!("0,Y", AddressingMode::ZeroPageY(0));
+    assert_am_parse!("10,Y", AddressingMode::ZeroPageY(10));
 }
 
 #[test]
 fn parse_absolute_hex() {
-    assert_am_parse!(" $ffff", AddressingMode::Absolute(0xffff));
-    assert_am_parse!(" $1000", AddressingMode::Absolute(0x1000));
-    assert_am_parse!(" $100", AddressingMode::Absolute(0x100));
+    assert_am_parse!("$ffff", AddressingMode::Absolute(0xffff));
+    assert_am_parse!("$1000", AddressingMode::Absolute(0x1000));
+    assert_am_parse!("$100", AddressingMode::Absolute(0x100));
 }
 
 #[test]
 fn parse_absolute_dec() {
-    assert_am_parse!(" 65535", AddressingMode::Absolute(65535));
-    assert_am_parse!(" 1000", AddressingMode::Absolute(1000));
-    assert_am_parse!(" 256", AddressingMode::Absolute(256));
+    assert_am_parse!("65535", AddressingMode::Absolute(65535));
+    assert_am_parse!("1000", AddressingMode::Absolute(1000));
+    assert_am_parse!("256", AddressingMode::Absolute(256));
 }
 
 #[test]
@@ -269,8 +279,7 @@ fn parse_opcode() {
 #[test]
 fn parse_lines() {
     match super::parse_lines("ADC #1\nSBC $FFFF\nJMP ($ff00)\n".as_bytes()) {
-        IResult::Done(_, opcodes) => {
-            println!("{:?}", opcodes);
+        IResult::Ok((_, opcodes)) => {
             assert_eq!(3, opcodes.len());
             assert_eq!(OpCode(Mnemonic::Adc, AddressingMode::Immediate(1, Sign::Implied)),
                        opcodes[0]);
@@ -279,7 +288,6 @@ fn parse_lines() {
             assert_eq!(OpCode(Mnemonic::Jmp, AddressingMode::Indirect(0xff00)),
                        opcodes[2]);
         }
-        IResult::Error(e) => panic!("Parse lines failed with: {:?}", e),
-        IResult::Incomplete(e) => panic!("Parse lines failed with: {:?}", e),
+        IResult::Err(e) => panic!("Parse lines failed with: {:?}", e),
     }
 }

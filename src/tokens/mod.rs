@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Mnemonic {
     Adc,
     And,
@@ -58,14 +58,14 @@ pub enum Mnemonic {
     Tya,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Sign {
     Implied,
     Positive,
     Negative,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum AddressingMode {
     IndexedIndirect(u8),
     IndirectIndexed(u8),
