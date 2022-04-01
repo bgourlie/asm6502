@@ -1,14 +1,16 @@
-use nom::IResult;
 use crate::parser::*;
 use crate::tokens::*;
+use nom::IResult;
 
 macro_rules! assert_parse {
     ( $ left : expr , $ right : expr ) => {
         if let IResult::Ok((_, actual)) = $right {
             assert_eq!($left, actual)
         } else {
-            panic!("Expected parse result to be {:?}, but parsing failed with: {:?}",
-                   $left, $right)
+            panic!(
+                "Expected parse result to be {:?}, but parsing failed with: {:?}",
+                $left, $right
+            )
         }
     };
 }
@@ -272,8 +274,10 @@ fn parse_implied() {
 
 #[test]
 fn parse_opcode() {
-    assert_opcode_parse!("ADC #1",
-                         OpCode(Mnemonic::Adc, AddressingMode::Immediate(1, Sign::Implied)));
+    assert_opcode_parse!(
+        "ADC #1",
+        OpCode(Mnemonic::Adc, AddressingMode::Immediate(1, Sign::Implied))
+    );
 }
 
 #[test]
@@ -281,12 +285,18 @@ fn parse_lines() {
     match super::parse_lines("ADC #1\nSBC $FFFF\nJMP ($ff00)\n".as_bytes()) {
         IResult::Ok((_, opcodes)) => {
             assert_eq!(3, opcodes.len());
-            assert_eq!(OpCode(Mnemonic::Adc, AddressingMode::Immediate(1, Sign::Implied)),
-                       opcodes[0]);
-            assert_eq!(OpCode(Mnemonic::Sbc, AddressingMode::Absolute(0xffff)),
-                       opcodes[1]);
-            assert_eq!(OpCode(Mnemonic::Jmp, AddressingMode::Indirect(0xff00)),
-                       opcodes[2]);
+            assert_eq!(
+                OpCode(Mnemonic::Adc, AddressingMode::Immediate(1, Sign::Implied)),
+                opcodes[0]
+            );
+            assert_eq!(
+                OpCode(Mnemonic::Sbc, AddressingMode::Absolute(0xffff)),
+                opcodes[1]
+            );
+            assert_eq!(
+                OpCode(Mnemonic::Jmp, AddressingMode::Indirect(0xff00)),
+                opcodes[2]
+            );
         }
         IResult::Err(e) => panic!("Parse lines failed with: {:?}", e),
     }

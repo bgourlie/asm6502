@@ -18,11 +18,8 @@ pub fn parse_lines(input: &[u8]) -> IResult<&[u8], Vec<OpCode>> {
 }
 
 fn opcode(input: &[u8]) -> IResult<&[u8], OpCode> {
-    let (input, (mnemonic, am)) = separated_pair(
-        mnemonic,
-        alt((space1, line_ending, eof)),
-        addressing_mode,
-    )(input)?;
+    let (input, (mnemonic, am)) =
+        separated_pair(mnemonic, alt((space1, line_ending, eof)), addressing_mode)(input)?;
     Ok((input, OpCode(mnemonic, am)))
 }
 

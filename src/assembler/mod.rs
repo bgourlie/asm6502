@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests;
 
-use nom::IResult;
 use crate::parser::parse_lines;
-use std::io::{Read, Write};
 use crate::tokens::*;
+use nom::IResult;
+use std::io::{Read, Write};
 
 type AssembleResult = Result<(), String>;
 
@@ -28,7 +28,9 @@ type AssembleResult = Result<(), String>;
 /// file.
 pub fn assemble<R: Read, W: Write>(mut input: R, output: &mut W) -> AssembleResult {
     let mut buf = Vec::<u8>::new();
-    input.read_to_end(&mut buf).map_err(|_| "Error reading input".to_owned())?;
+    input
+        .read_to_end(&mut buf)
+        .map_err(|_| "Error reading input".to_owned())?;
     match parse_lines(&buf) {
         IResult::Err(_) => Err("An error occurred while parsing".to_owned()),
         IResult::Ok((_, opcodes)) => {
@@ -408,11 +410,12 @@ fn memory_byte<T: Write>(opcode: u8, addr: u8, output: &mut T) -> AssembleResult
 }
 
 #[inline]
-fn relative<T: Write>(opcode: u8,
-                      am: AddressingMode,
-                      mnemonic: &'static str,
-                      output: &mut T)
-                      -> AssembleResult {
+fn relative<T: Write>(
+    opcode: u8,
+    am: AddressingMode,
+    mnemonic: &'static str,
+    output: &mut T,
+) -> AssembleResult {
     if let AddressingMode::ZeroPageOrRelative(offset, sign) = am {
         let sign = if sign == Sign::Implied {
             Sign::Positive
@@ -421,20 +424,27 @@ fn relative<T: Write>(opcode: u8,
         };
         byte(opcode, output).and_then(|_| signed(offset, sign, output))
     } else {
-        Err(format!("Unexpected operand encountered for {}: {:?}", mnemonic, am))
+        Err(format!(
+            "Unexpected operand encountered for {}: {:?}",
+            mnemonic, am
+        ))
     }
 }
 
 #[inline]
-fn implied<T: Write>(opcode: u8,
-                     am: AddressingMode,
-                     mnemonic: &'static str,
-                     output: &mut T)
-                     -> AssembleResult {
+fn implied<T: Write>(
+    opcode: u8,
+    am: AddressingMode,
+    mnemonic: &'static str,
+    output: &mut T,
+) -> AssembleResult {
     if let AddressingMode::Implied = am {
         byte(opcode, output)
     } else {
-        Err(format!("Unexpected operand encountered for {}: {:?}", mnemonic, am))
+        Err(format!(
+            "Unexpected operand encountered for {}: {:?}",
+            mnemonic, am
+        ))
     }
 }
 
@@ -462,7 +472,8 @@ fn signed<T: Write>(val: u8, sign: Sign, output: &mut T) -> AssembleResult {
 
 #[inline]
 fn byte<T: Write>(val: u8, output: &mut T) -> AssembleResult {
-    output.write(&[val])
+    output
+        .write(&[val])
         .map(|_| ())
         .map_err(|_| "An error occurred while writing to the buffer".to_owned())
 }
@@ -471,7 +482,8 @@ fn byte<T: Write>(val: u8, output: &mut T) -> AssembleResult {
 fn word<T: Write>(val: u16, output: &mut T) -> AssembleResult {
     let low_byte = (val & 0xff) as u8;
     let high_byte = ((val >> 8) & 0xff) as u8;
-    output.write(&[low_byte, high_byte])
+    output
+        .write(&[low_byte, high_byte])
         .map(|_| ())
         .map_err(|_| "An error occurred while writing to the buffer".to_owned())
 }
