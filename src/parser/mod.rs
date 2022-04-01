@@ -150,7 +150,7 @@ fn am_immediate(input: &[u8]) -> IResult<&[u8], AddressingMode> {
 
 fn am_abs(input: &[u8]) -> IResult<&[u8], AddressingMode> {
     let parser = alt((parse_word_hex, dec_u16));
-    map(parser, |val| AddressingMode::Absolute(val))(input)
+    map(parser, AddressingMode::Absolute)(input)
 }
 
 fn am_zp_or_relative(input: &[u8]) -> IResult<&[u8], AddressingMode> {
@@ -172,12 +172,12 @@ fn am_zp_y(input: &[u8]) -> IResult<&[u8], AddressingMode> {
 
 fn am_abs_x(input: &[u8]) -> IResult<&[u8], AddressingMode> {
     let parser = terminated(alt((parse_word_hex, dec_u16)), tag_no_case(",X"));
-    map(parser, |val| AddressingMode::AbsoluteX(val))(input)
+    map(parser, AddressingMode::AbsoluteX)(input)
 }
 
 fn am_abs_y(input: &[u8]) -> IResult<&[u8], AddressingMode> {
     let parser = terminated(alt((parse_word_hex, dec_u16)), tag_no_case(",Y"));
-    map(parser, |val| AddressingMode::AbsoluteY(val))(input)
+    map(parser, AddressingMode::AbsoluteY)(input)
 }
 
 fn parse_word_hex(input: &[u8]) -> IResult<&[u8], u16> {
