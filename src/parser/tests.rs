@@ -301,3 +301,14 @@ fn parse_lines() {
         IResult::Err(e) => panic!("Parse lines failed with: {:?}", e),
     }
 }
+
+#[test]
+fn several_implied_ops() {
+    let parsed = super::parse_lines("NOP\nNOP\nBRK".as_bytes());
+    let expected = vec![
+        OpCode(Mnemonic::Nop, AddressingMode::Implied),
+        OpCode(Mnemonic::Nop, AddressingMode::Implied),
+        OpCode(Mnemonic::Brk, AddressingMode::Implied),
+    ];
+    assert_eq!(parsed, Ok((&[] as &[u8], expected)));
+}

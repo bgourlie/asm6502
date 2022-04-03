@@ -7,8 +7,8 @@ use nom::IResult;
 use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case},
-    character::complete::{line_ending, space1},
-    combinator::{eof, map, opt, value},
+    character::complete::{line_ending, space0},
+    combinator::{eof, map, opt, peek, value},
     multi::separated_list0,
     sequence::{delimited, preceded, separated_pair, terminated, tuple},
 };
@@ -18,8 +18,7 @@ pub fn parse_lines(input: &[u8]) -> IResult<&[u8], Vec<OpCode>> {
 }
 
 fn opcode(input: &[u8]) -> IResult<&[u8], OpCode> {
-    let (input, (mnemonic, am)) =
-        separated_pair(mnemonic, alt((space1, line_ending, eof)), addressing_mode)(input)?;
+    let (input, (mnemonic, am)) = separated_pair(mnemonic, space0, addressing_mode)(input)?;
     Ok((input, OpCode(mnemonic, am)))
 }
 
@@ -108,7 +107,7 @@ fn addressing_mode(input: &[u8]) -> IResult<&[u8], AddressingMode> {
 }
 
 fn am_implied(input: &[u8]) -> IResult<&[u8], AddressingMode> {
-    value(AddressingMode::Implied, alt((line_ending, eof)))(input)
+    value(AddressingMode::Implied, alt((peek(line_ending), eof)))(input)
 }
 
 fn am_indirect(input: &[u8]) -> IResult<&[u8], AddressingMode> {
