@@ -312,3 +312,39 @@ fn several_implied_ops() {
     ];
     assert_eq!(parsed, Ok((&[] as &[u8], expected)));
 }
+
+#[test]
+fn empty_lines_in_front() {
+    let parsed = super::parse_lines("\n   \nNOP\nBRK".as_bytes());
+    let expected = vec![
+        OpCode(Mnemonic::Nop, AddressingMode::Implied),
+        OpCode(Mnemonic::Brk, AddressingMode::Implied),
+    ];
+    assert_eq!(parsed, Ok((&[] as &[u8], expected)));
+}
+
+#[test]
+fn empty_lines_in_middle() {
+    let parsed = super::parse_lines("NOP\n    \nBRK".as_bytes());
+    let expected = vec![
+        OpCode(Mnemonic::Nop, AddressingMode::Implied),
+        OpCode(Mnemonic::Brk, AddressingMode::Implied),
+    ];
+    assert_eq!(parsed, Ok((&[] as &[u8], expected)));
+}
+
+#[test]
+fn empty_lines_in_end() {
+    let parsed = super::parse_lines("NOP\nBRK  \n\n".as_bytes());
+    let expected = vec![
+        OpCode(Mnemonic::Nop, AddressingMode::Implied),
+        OpCode(Mnemonic::Brk, AddressingMode::Implied),
+    ];
+    assert_eq!(parsed, Ok((&[] as &[u8], expected)));
+}
+
+#[test]
+fn parsing_line_with_error() {
+    let parsed = super::parse_lines("LDX #ab".as_bytes());
+    assert!(parsed.is_err());
+}
