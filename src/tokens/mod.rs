@@ -65,7 +65,7 @@ pub enum Sign {
     Negative,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum AddressingMode {
     IndexedIndirect(u8),
     IndirectIndexed(u8),
@@ -79,7 +79,14 @@ pub enum AddressingMode {
     Indirect(u16),
     Implied,
     Accumulator,
+    Label(String),
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct OpCode(pub Mnemonic, pub AddressingMode);
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum Token {
+    OpCode(OpCode),
+    Label(String),
+}

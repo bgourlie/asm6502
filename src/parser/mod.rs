@@ -6,25 +6,36 @@ use nom::error::ErrorKind;
 use nom::IResult;
 use nom::{
     branch::alt,
-    bytes::complete::{tag, tag_no_case},
+    bytes::complete::{tag, tag_no_case, take_while1},
     character::complete::{line_ending, multispace0, multispace1, space0},
     combinator::{all_consuming, eof, map, opt, peek, value},
     multi::separated_list0,
     sequence::{delimited, preceded, separated_pair, terminated, tuple},
 };
 
-pub fn parse_lines(input: &[u8]) -> IResult<&[u8], Vec<OpCode>> {
+pub fn parse_lines(input: &[u8]) -> IResult<&[u8], Vec<Token>> {
     let parser = all_consuming(tuple((
         multispace0,
-        separated_list0(multispace1, opcode),
+        separated_list0(multispace1, alt((opcode, label))),
         multispace0,
     )));
     map(parser, |(_, ops, _)| ops)(input)
 }
 
-fn opcode(input: &[u8]) -> IResult<&[u8], OpCode> {
+fn label(input: &[u8]) -> IResult<&[u8], Token> {
+    map(
+        tuple((
+            take_while1(|c| nom::character::is_alphanumeric(c) || c as char == '_'),
+            opt(tag(":")),
+            space0,
+            alt((peek(line_ending), eof)),
+        )),
+        |(token, _, _, _)| Token::Label(std::str::from_utf8(token).unwrap().to_string()),
+    )(input)
+}
+fn opcode(input: &[u8]) -> IResult<&[u8], Token> {
     let (input, (mnemonic, am)) = separated_pair(mnemonic, space0, addressing_mode)(input)?;
-    Ok((input, OpCode(mnemonic, am)))
+    Ok((input, Token::OpCode(OpCode(mnemonic, am))))
 }
 
 fn mnemonic(input: &[u8]) -> IResult<&[u8], Mnemonic> {
@@ -108,6 +119,7 @@ fn addressing_mode(input: &[u8]) -> IResult<&[u8], AddressingMode> {
         am_abs_y,
         am_abs,
         am_implied,
+        am_label,
     ))(input)
 }
 
@@ -182,6 +194,13 @@ fn am_abs_x(input: &[u8]) -> IResult<&[u8], AddressingMode> {
 fn am_abs_y(input: &[u8]) -> IResult<&[u8], AddressingMode> {
     let parser = terminated(alt((parse_word_hex, dec_u16)), tag_no_case(",Y"));
     map(parser, AddressingMode::AbsoluteY)(input)
+}
+
+fn am_label(input: &[u8]) -> IResult<&[u8], AddressingMode> {
+    map(
+        take_while1(|c| nom::character::is_alphanumeric(c) || c as char == '_'),
+        |label: &[u8]| AddressingMode::Label(std::str::from_utf8(label).unwrap().to_string()),
+    )(input)
 }
 
 fn parse_word_hex(input: &[u8]) -> IResult<&[u8], u16> {
