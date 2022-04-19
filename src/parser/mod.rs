@@ -7,8 +7,8 @@ use nom::IResult;
 use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case},
-    character::complete::{line_ending, space1},
-    combinator::{eof, map, opt, value},
+    character::complete::{line_ending, space0},
+    combinator::{eof, map, opt, peek, value},
     multi::separated_list0,
     sequence::{delimited, preceded, separated_pair, terminated, tuple},
 };
@@ -18,11 +18,7 @@ pub fn parse_lines(input: &[u8]) -> IResult<&[u8], Vec<OpCode>> {
 }
 
 fn opcode(input: &[u8]) -> IResult<&[u8], OpCode> {
-    let (input, (mnemonic, am)) = separated_pair(
-        mnemonic,
-        alt((space1, line_ending, eof)),
-        addressing_mode,
-    )(input)?;
+    let (input, (mnemonic, am)) = separated_pair(mnemonic, space0, addressing_mode)(input)?;
     Ok((input, OpCode(mnemonic, am)))
 }
 
@@ -111,7 +107,7 @@ fn addressing_mode(input: &[u8]) -> IResult<&[u8], AddressingMode> {
 }
 
 fn am_implied(input: &[u8]) -> IResult<&[u8], AddressingMode> {
-    value(AddressingMode::Implied, alt((line_ending, eof)))(input)
+    value(AddressingMode::Implied, alt((peek(line_ending), eof)))(input)
 }
 
 fn am_indirect(input: &[u8]) -> IResult<&[u8], AddressingMode> {
@@ -153,7 +149,7 @@ fn am_immediate(input: &[u8]) -> IResult<&[u8], AddressingMode> {
 
 fn am_abs(input: &[u8]) -> IResult<&[u8], AddressingMode> {
     let parser = alt((parse_word_hex, dec_u16));
-    map(parser, |val| AddressingMode::Absolute(val))(input)
+    map(parser, AddressingMode::Absolute)(input)
 }
 
 fn am_zp_or_relative(input: &[u8]) -> IResult<&[u8], AddressingMode> {
@@ -175,12 +171,12 @@ fn am_zp_y(input: &[u8]) -> IResult<&[u8], AddressingMode> {
 
 fn am_abs_x(input: &[u8]) -> IResult<&[u8], AddressingMode> {
     let parser = terminated(alt((parse_word_hex, dec_u16)), tag_no_case(",X"));
-    map(parser, |val| AddressingMode::AbsoluteX(val))(input)
+    map(parser, AddressingMode::AbsoluteX)(input)
 }
 
 fn am_abs_y(input: &[u8]) -> IResult<&[u8], AddressingMode> {
     let parser = terminated(alt((parse_word_hex, dec_u16)), tag_no_case(",Y"));
-    map(parser, |val| AddressingMode::AbsoluteY(val))(input)
+    map(parser, AddressingMode::AbsoluteY)(input)
 }
 
 fn parse_word_hex(input: &[u8]) -> IResult<&[u8], u16> {

@@ -21,13 +21,19 @@ macro_rules! assert_assemble {
                 let expected = $expected;
                 let buf = &buf[..];
                 if expected.len() != buf.len() {
-                    panic!("Expected number of bytes written for '{}' to be {} but was {}",
-                            asm, expected.len(), buf.len())
+                    panic!(
+                        "Expected number of bytes written for '{}' to be {} but was {}",
+                        asm,
+                        expected.len(),
+                        buf.len()
+                    )
                 }
 
                 if expected != &buf[..] {
-                    panic!("Expected '{}' to compile to {:?} but was {:?}",
-                            asm, expected, buf)
+                    panic!(
+                        "Expected '{}' to compile to {:?} but was {:?}",
+                        asm, expected, buf
+                    )
                 }
             }
         }
