@@ -7,14 +7,19 @@ use nom::IResult;
 use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case},
-    character::complete::{line_ending, space0},
-    combinator::{eof, map, opt, peek, value},
+    character::complete::{line_ending, multispace0, multispace1, space0},
+    combinator::{all_consuming, eof, map, opt, peek, value},
     multi::separated_list0,
     sequence::{delimited, preceded, separated_pair, terminated, tuple},
 };
 
 pub fn parse_lines(input: &[u8]) -> IResult<&[u8], Vec<OpCode>> {
-    separated_list0(line_ending, opcode)(input)
+    let parser = all_consuming(tuple((
+        multispace0,
+        separated_list0(multispace1, opcode),
+        multispace0,
+    )));
+    map(parser, |(_, ops, _)| ops)(input)
 }
 
 fn opcode(input: &[u8]) -> IResult<&[u8], OpCode> {
@@ -124,7 +129,7 @@ fn am_indexed_indirect(input: &[u8]) -> IResult<&[u8], AddressingMode> {
     let parser = delimited(
         tag("("),
         alt((parse_byte_hex, parse_byte_dec)),
-        tag_no_case(",X"),
+        tag_no_case(",X)"),
     );
     map(parser, |(addr, _)| AddressingMode::IndexedIndirect(addr))(input)
 }
