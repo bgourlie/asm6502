@@ -4,6 +4,7 @@ mod tests;
 use crate::parser::parse_lines;
 use crate::tokens::*;
 use nom::IResult;
+use std::collections::HashMap;
 use std::io::{Read, Write};
 
 type AssembleResult = Result<(), String>;
@@ -31,76 +32,120 @@ pub fn assemble<R: Read, W: Write>(mut input: R, output: &mut W) -> AssembleResu
     input
         .read_to_end(&mut buf)
         .map_err(|_| "Error reading input".to_owned())?;
+
     match parse_lines(&buf) {
+        IResult::Ok((_, tokens)) => process_tokens(tokens, output),
         IResult::Err(_) => Err("An error occurred while parsing".to_owned()),
-        IResult::Ok((_, opcodes)) => {
-            let mut res: AssembleResult = Ok(());
-            for opcode in opcodes {
-                let OpCode(mnemonic, am) = opcode;
-                match mnemonic {
-                    Mnemonic::Adc => res = adc(am, output),
-                    Mnemonic::And => res = and(am, output),
-                    Mnemonic::Asl => res = asl(am, output),
-                    Mnemonic::Bit => res = bit(am, output),
-                    Mnemonic::Bcc => res = relative(0x90, am, "BCC", output),
-                    Mnemonic::Bcs => res = relative(0xb0, am, "BCS", output),
-                    Mnemonic::Beq => res = relative(0xf0, am, "BEQ", output),
-                    Mnemonic::Bmi => res = relative(0x30, am, "BMI", output),
-                    Mnemonic::Bne => res = relative(0xd0, am, "BNE", output),
-                    Mnemonic::Bpl => res = relative(0x10, am, "BPL", output),
-                    Mnemonic::Bvc => res = relative(0x50, am, "BVC", output),
-                    Mnemonic::Bvs => res = relative(0x70, am, "BVS", output),
-                    Mnemonic::Brk => res = brk(am, output),
-                    Mnemonic::Cmp => res = cmp(am, output),
-                    Mnemonic::Cpx => res = cpx(am, output),
-                    Mnemonic::Cpy => res = cpy(am, output),
-                    Mnemonic::Dec => res = dec(am, output),
-                    Mnemonic::Eor => res = eor(am, output),
-                    Mnemonic::Clc => res = implied(0x18, am, "CLC", output),
-                    Mnemonic::Cld => res = implied(0xd8, am, "CLD", output),
-                    Mnemonic::Cli => res = implied(0x58, am, "CLI", output),
-                    Mnemonic::Clv => res = implied(0xb8, am, "CLV", output),
-                    Mnemonic::Sec => res = implied(0x38, am, "SEC", output),
-                    Mnemonic::Sed => res = implied(0xf8, am, "SED", output),
-                    Mnemonic::Sei => res = implied(0x78, am, "SEI", output),
-                    Mnemonic::Inc => res = inc(am, output),
-                    Mnemonic::Jmp => res = jmp(am, output),
-                    Mnemonic::Jsr => res = jsr(am, output),
-                    Mnemonic::Lda => res = lda(am, output),
-                    Mnemonic::Ldx => res = ldx(am, output),
-                    Mnemonic::Ldy => res = ldy(am, output),
-                    Mnemonic::Lsr => res = lsr(am, output),
-                    Mnemonic::Nop => res = implied(0xea, am, "NOP", output),
-                    Mnemonic::Ora => res = ora(am, output),
-                    Mnemonic::Tax => res = implied(0xaa, am, "TAX", output),
-                    Mnemonic::Txa => res = implied(0x8a, am, "TXA", output),
-                    Mnemonic::Dex => res = implied(0xca, am, "DEX", output),
-                    Mnemonic::Inx => res = implied(0xe8, am, "INX", output),
-                    Mnemonic::Tay => res = implied(0xa8, am, "TAY", output),
-                    Mnemonic::Tya => res = implied(0x98, am, "TYA", output),
-                    Mnemonic::Dey => res = implied(0x88, am, "DEY", output),
-                    Mnemonic::Iny => res = implied(0xc8, am, "INY", output),
-                    Mnemonic::Rol => res = rol(am, output),
-                    Mnemonic::Ror => res = ror(am, output),
-                    Mnemonic::Rti => res = implied(0x40, am, "RTI", output),
-                    Mnemonic::Rts => res = implied(0x60, am, "RTS", output),
-                    Mnemonic::Sbc => res = sbc(am, output),
-                    Mnemonic::Sta => res = sta(am, output),
-                    Mnemonic::Txs => res = implied(0x9a, am, "TXS", output),
-                    Mnemonic::Tsx => res = implied(0xba, am, "TSX", output),
-                    Mnemonic::Pha => res = implied(0x48, am, "PHA", output),
-                    Mnemonic::Pla => res = implied(0x68, am, "PLA", output),
-                    Mnemonic::Php => res = implied(0x08, am, "PHP", output),
-                    Mnemonic::Plp => res = implied(0x28, am, "PLP", output),
-                    Mnemonic::Stx => res = stx(am, output),
-                    Mnemonic::Sty => res = sty(am, output),
-                }
-                if res.is_err() {
-                    break;
-                }
+    }
+}
+
+fn process_tokens<W: Write>(tokens: Vec<Token>, output: &mut W) -> AssembleResult {
+    #[derive(Debug)]
+    struct Relocation {
+        label: String,
+        offset: usize,
+    }
+    // Contains list of places there we should insert concrete address instead of label.
+    let mut relocation_table: Vec<Relocation> = vec![];
+    let mut label_pos: HashMap<String, usize> = HashMap::new();
+    let mut codegen = Vec::<u8>::new();
+
+    for token in tokens {
+        match token {
+            Token::OpCode(OpCode(mnemonic, am)) => {
+                if let AddressingMode::Label(label) = &am {
+                    relocation_table.push(Relocation {
+                        label: label.clone(),
+                        offset: codegen.len() + 1,
+                    });
+                };
+                process_opcode(mnemonic, am, &mut codegen)?;
             }
-            res
+            Token::Label(name) => {
+                label_pos.insert(name, codegen.len());
+            }
         }
+    }
+
+    for relocation in relocation_table.into_iter() {
+        if let Some(offset) = label_pos.get(&relocation.label) {
+            let relative = *offset as i64 - relocation.offset as i64 - 1;
+            if relative > 127 || relative < -128 {
+                return Err(format!(
+                    "Label \"{}\" is too far from definition",
+                    relocation.label
+                ));
+            }
+            codegen[relocation.offset] = relative as u8;
+        } else {
+            return Err(format!("Label \"{}\" is not defined", relocation.label));
+        }
+    }
+
+    output
+        .write(&codegen)
+        .map(|_| ())
+        .map_err(|_| "An error occurred while writing to the buffer".to_owned())
+}
+
+fn process_opcode(mnemonic: Mnemonic, am: AddressingMode, codegen: &mut Vec<u8>) -> AssembleResult {
+    match mnemonic {
+        Mnemonic::Adc => adc(am, codegen),
+        Mnemonic::And => and(am, codegen),
+        Mnemonic::Asl => asl(am, codegen),
+        Mnemonic::Bit => bit(am, codegen),
+        Mnemonic::Bcc => relative(0x90, am, "BCC", codegen),
+        Mnemonic::Bcs => relative(0xb0, am, "BCS", codegen),
+        Mnemonic::Beq => relative(0xf0, am, "BEQ", codegen),
+        Mnemonic::Bmi => relative(0x30, am, "BMI", codegen),
+        Mnemonic::Bne => relative(0xd0, am, "BNE", codegen),
+        Mnemonic::Bpl => relative(0x10, am, "BPL", codegen),
+        Mnemonic::Bvc => relative(0x50, am, "BVC", codegen),
+        Mnemonic::Bvs => relative(0x70, am, "BVS", codegen),
+        Mnemonic::Brk => brk(am, codegen),
+        Mnemonic::Cmp => cmp(am, codegen),
+        Mnemonic::Cpx => cpx(am, codegen),
+        Mnemonic::Cpy => cpy(am, codegen),
+        Mnemonic::Dec => dec(am, codegen),
+        Mnemonic::Eor => eor(am, codegen),
+        Mnemonic::Clc => implied(0x18, am, "CLC", codegen),
+        Mnemonic::Cld => implied(0xd8, am, "CLD", codegen),
+        Mnemonic::Cli => implied(0x58, am, "CLI", codegen),
+        Mnemonic::Clv => implied(0xb8, am, "CLV", codegen),
+        Mnemonic::Sec => implied(0x38, am, "SEC", codegen),
+        Mnemonic::Sed => implied(0xf8, am, "SED", codegen),
+        Mnemonic::Sei => implied(0x78, am, "SEI", codegen),
+        Mnemonic::Inc => inc(am, codegen),
+        Mnemonic::Jmp => jmp(am, codegen),
+        Mnemonic::Jsr => jsr(am, codegen),
+        Mnemonic::Lda => lda(am, codegen),
+        Mnemonic::Ldx => ldx(am, codegen),
+        Mnemonic::Ldy => ldy(am, codegen),
+        Mnemonic::Lsr => lsr(am, codegen),
+        Mnemonic::Nop => implied(0xea, am, "NOP", codegen),
+        Mnemonic::Ora => ora(am, codegen),
+        Mnemonic::Tax => implied(0xaa, am, "TAX", codegen),
+        Mnemonic::Txa => implied(0x8a, am, "TXA", codegen),
+        Mnemonic::Dex => implied(0xca, am, "DEX", codegen),
+        Mnemonic::Inx => implied(0xe8, am, "INX", codegen),
+        Mnemonic::Tay => implied(0xa8, am, "TAY", codegen),
+        Mnemonic::Tya => implied(0x98, am, "TYA", codegen),
+        Mnemonic::Dey => implied(0x88, am, "DEY", codegen),
+        Mnemonic::Iny => implied(0xc8, am, "INY", codegen),
+        Mnemonic::Rol => rol(am, codegen),
+        Mnemonic::Ror => ror(am, codegen),
+        Mnemonic::Rti => implied(0x40, am, "RTI", codegen),
+        Mnemonic::Rts => implied(0x60, am, "RTS", codegen),
+        Mnemonic::Sbc => sbc(am, codegen),
+        Mnemonic::Sta => sta(am, codegen),
+        Mnemonic::Txs => implied(0x9a, am, "TXS", codegen),
+        Mnemonic::Tsx => implied(0xba, am, "TSX", codegen),
+        Mnemonic::Pha => implied(0x48, am, "PHA", codegen),
+        Mnemonic::Pla => implied(0x68, am, "PLA", codegen),
+        Mnemonic::Php => implied(0x08, am, "PHP", codegen),
+        Mnemonic::Plp => implied(0x28, am, "PLP", codegen),
+        Mnemonic::Stx => stx(am, codegen),
+        Mnemonic::Sty => sty(am, codegen),
     }
 }
 
@@ -416,18 +461,24 @@ fn relative<T: Write>(
     mnemonic: &'static str,
     output: &mut T,
 ) -> AssembleResult {
-    if let AddressingMode::ZeroPageOrRelative(offset, sign) = am {
-        let sign = if sign == Sign::Implied {
-            Sign::Positive
-        } else {
-            Sign::Negative
-        };
-        byte(opcode, output).and_then(|_| signed(offset, sign, output))
-    } else {
-        Err(format!(
+    match am {
+        AddressingMode::ZeroPageOrRelative(offset, sign) => {
+            let sign = if sign == Sign::Implied {
+                Sign::Positive
+            } else {
+                Sign::Negative
+            };
+            byte(opcode, output).and_then(|_| signed(offset, sign, output))
+        }
+        AddressingMode::Label(_) => {
+            // We do not have information about labels yet, so we cannot write specific address.
+            // Just write something of same type. We will insert propper address on relocation step
+            byte(opcode, output).and_then(|_| byte(0, output))
+        }
+        _ => Err(format!(
             "Unexpected operand encountered for {}: {:?}",
             mnemonic, am
-        ))
+        )),
     }
 }
 

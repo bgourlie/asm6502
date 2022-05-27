@@ -2367,3 +2367,29 @@ fn sty() {
     // ZeroPageY
     assert_assemble_err!("STY $44,Y");
 }
+
+#[test]
+fn branch_with_forward_label() {
+    let asm = "BVC LABEL\nNOP\nNOP\nLABEL:\nNOP".as_bytes();
+    let mut buf = Vec::<u8>::new();
+    let asm = assemble(asm, &mut buf);
+    assert!(asm.is_ok());
+    assert_eq!(buf, &[0x50, 0x02, 0xEA, 0xEA, 0xEA]);
+}
+
+#[test]
+fn branch_with_backward_label() {
+    let asm = "LABEL:\nNOP\nNOP\nBVC LABEL\nNOP".as_bytes();
+    let mut buf = Vec::<u8>::new();
+    let asm = assemble(asm, &mut buf);
+    assert!(asm.is_ok());
+    assert_eq!(buf, &[0xEA, 0xEA, 0x50, 0xFC, 0xEA]);
+}
+
+#[test]
+fn unknown_label() {
+    let asm = "LABEL:\nNOP\nBVC LABEL_new\nNOP".as_bytes();
+    let mut buf = Vec::<u8>::new();
+    let asm = assemble(asm, &mut buf);
+    assert!(asm.is_err());
+}
