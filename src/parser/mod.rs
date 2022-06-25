@@ -2,43 +2,88 @@
 mod tests;
 
 use crate::tokens::*;
-use nom::error::ErrorKind;
-use nom::IResult;
+use nom::bytes::complete::is_not;
+use nom::character::complete::{alphanumeric1, multispace1};
+use nom::combinator::recognize;
+use nom::error::{ErrorKind, VerboseError};
+use nom::{IResult, InputIter};
+use nom::multi::{many1, separated_list1, many0};
 use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case, take_while1},
-    character::complete::{line_ending, multispace0, multispace1, space0},
-    combinator::{all_consuming, eof, map, opt, peek, value},
-    multi::separated_list0,
-    sequence::{delimited, preceded, separated_pair, terminated, tuple},
+    character::complete::{line_ending, space0, space1, char},
+    combinator::{all_consuming, eof, map, opt, value},
+    sequence::{delimited, preceded, separated_pair, terminated, tuple, pair},
 };
 
-pub fn parse_lines(input: &[u8]) -> IResult<&[u8], Vec<Token>> {
-    let parser = all_consuming(tuple((
-        multispace0,
-        separated_list0(multispace1, alt((opcode, label))),
-        multispace0,
-    )));
-    map(parser, |(_, ops, _)| ops)(input)
+pub type Result<'a, T> = IResult<&'a str, T, VerboseError<&'a str>>;
+
+pub fn end_of_line_comment(input: &str) -> Result<&str> {
+    recognize(pair(char(';'), is_not("\n\r")))(input)
 }
 
-fn label(input: &[u8]) -> IResult<&[u8], Token> {
+fn empty_lines(input: &str) -> Result<()> {
+    let (rest, _) = many0(alt((multispace1, end_of_line_comment)))(input)?;
+    Ok((rest, ()))
+}
+
+pub fn parse_line(input: &str) -> Result<Token> {
+    let parser = tuple((
+        empty_lines,
+        alt((control_cmd, instruction, label)),
+        space0,
+        opt(end_of_line_comment),
+        alt((line_ending, eof)),
+        empty_lines,
+    ));
+    map(parser, |(_, op, _, _comment, _eol, _)| op)(input)
+}
+
+pub fn parse_lines(input: &str) -> Result<Vec<Token>> {
+    all_consuming(many1(parse_line))(input)
+}
+
+fn spaced_comma(input: &str) -> Result<&str> {
+    let (rest, _) = space0(input)?;
+    let (rest, _) = tag(",")(rest)?;
+    space0(rest)
+}
+
+fn expression_sequence(input: &str) -> Result<Token> {
+    let (rest, bytes) = separated_list1(spaced_comma, alt((parse_signed_byte_hex, parse_signed_byte_dec)))(input)?;
+    Ok((rest, Token::ControlCommand(ControlCommand::Byte(bytes))))
+}
+
+fn byte_cmd(input: &str) -> Result<Token> {
+    let (rest, _) = alt((tag_no_case(".BYTE"), tag_no_case(".DB")))(input)?;
+    let (rest, _) = space1(rest)?;
+    expression_sequence(rest)
+}
+
+fn control_cmd(input: &str) -> Result<Token> {
+    alt((
+        byte_cmd,
+    ))(input)
+}
+
+fn label(input: &str) -> Result<Token> {
+    let parser = tuple((
+        alphanumeric1,
+        tag::<&str, &str, _>(":") // Required type hint
+    ));
+
     map(
-        tuple((
-            take_while1(|c| nom::character::is_alphanumeric(c) || c as char == '_'),
-            opt(tag(":")),
-            space0,
-            alt((peek(line_ending), eof)),
-        )),
-        |(token, _, _, _)| Token::Label(std::str::from_utf8(token).unwrap().to_string()),
+        parser,
+        |(token, _)| Token::Label(token.to_string()),
     )(input)
 }
-fn opcode(input: &[u8]) -> IResult<&[u8], Token> {
+
+fn instruction(input: &str) -> Result<Token> {
     let (input, (mnemonic, am)) = separated_pair(mnemonic, space0, addressing_mode)(input)?;
     Ok((input, Token::OpCode(OpCode(mnemonic, am))))
 }
 
-fn mnemonic(input: &[u8]) -> IResult<&[u8], Mnemonic> {
+fn mnemonic(input: &str) -> Result<Mnemonic> {
     alt((
         alt((
             value(Mnemonic::Adc, tag_no_case("ADC")),
@@ -105,8 +150,8 @@ fn mnemonic(input: &[u8]) -> IResult<&[u8], Mnemonic> {
     ))(input)
 }
 
-fn addressing_mode(input: &[u8]) -> IResult<&[u8], AddressingMode> {
-    alt((
+fn addressing_mode(input: &str) -> Result<AddressingMode> {
+    let (rest, operand) = opt(alt((
         am_accumulator,
         am_immediate,
         am_indirect,
@@ -118,16 +163,19 @@ fn addressing_mode(input: &[u8]) -> IResult<&[u8], AddressingMode> {
         am_abs_x,
         am_abs_y,
         am_abs,
-        am_implied,
         am_label,
-    ))(input)
+    )))(input)?;
+    match operand {
+        Some(operand) => {
+            Ok((rest, operand))
+        }
+        None => {
+            Ok((rest, AddressingMode::Implied))
+        }
+    }
 }
 
-fn am_implied(input: &[u8]) -> IResult<&[u8], AddressingMode> {
-    value(AddressingMode::Implied, alt((peek(line_ending), eof)))(input)
-}
-
-fn am_indirect(input: &[u8]) -> IResult<&[u8], AddressingMode> {
+fn am_indirect(input: &str) -> Result<AddressingMode> {
     let parser = tuple((
         tag("("),
         alt((parse_word_hex, dec_u16)),
@@ -137,85 +185,85 @@ fn am_indirect(input: &[u8]) -> IResult<&[u8], AddressingMode> {
     map(parser, |(_, val, _, _)| AddressingMode::Indirect(val))(input)
 }
 
-fn am_indexed_indirect(input: &[u8]) -> IResult<&[u8], AddressingMode> {
+fn am_indexed_indirect(input: &str) -> Result<AddressingMode> {
     let parser = delimited(
         tag("("),
-        alt((parse_byte_hex, parse_byte_dec)),
+        alt((parse_signed_byte_hex, parse_signed_byte_dec)),
         tag_no_case(",X)"),
     );
     map(parser, |(addr, _)| AddressingMode::IndexedIndirect(addr))(input)
 }
 
-fn am_indirect_indexed(input: &[u8]) -> IResult<&[u8], AddressingMode> {
+fn am_indirect_indexed(input: &str) -> Result<AddressingMode> {
     let parser = delimited(
         tag("("),
-        alt((parse_byte_hex, parse_byte_dec)),
+        alt((parse_signed_byte_hex, parse_signed_byte_dec)),
         tag_no_case("),Y"),
     );
     map(parser, |(addr, _)| AddressingMode::IndirectIndexed(addr))(input)
 }
 
-fn am_accumulator(input: &[u8]) -> IResult<&[u8], AddressingMode> {
+fn am_accumulator(input: &str) -> Result<AddressingMode> {
     map(tag_no_case("A"), |_| AddressingMode::Accumulator)(input)
 }
 
-fn am_immediate(input: &[u8]) -> IResult<&[u8], AddressingMode> {
-    let parser = preceded(tag("#"), alt((parse_byte_hex, parse_byte_dec)));
+fn am_immediate(input: &str) -> Result<AddressingMode> {
+    let parser = preceded(tag("#"), alt((parse_signed_byte_hex, parse_signed_byte_dec)));
     map(parser, |(byte, sign)| AddressingMode::Immediate(byte, sign))(input)
 }
 
-fn am_abs(input: &[u8]) -> IResult<&[u8], AddressingMode> {
+fn am_abs(input: &str) -> Result<AddressingMode> {
     let parser = alt((parse_word_hex, dec_u16));
     map(parser, AddressingMode::Absolute)(input)
 }
 
-fn am_zp_or_relative(input: &[u8]) -> IResult<&[u8], AddressingMode> {
-    let parser = alt((parse_byte_hex, parse_byte_dec));
+fn am_zp_or_relative(input: &str) -> Result<AddressingMode> {
+    let parser = alt((parse_signed_byte_hex, parse_signed_byte_dec));
     map(parser, |(byte, sign)| {
         AddressingMode::ZeroPageOrRelative(byte, sign)
     })(input)
 }
 
-fn am_zp_x(input: &[u8]) -> IResult<&[u8], AddressingMode> {
-    let parser = terminated(alt((parse_byte_hex, parse_byte_dec)), tag_no_case(",X"));
+fn am_zp_x(input: &str) -> Result<AddressingMode> {
+    let parser = terminated(alt((parse_signed_byte_hex, parse_signed_byte_dec)), tag_no_case(",X"));
     map(parser, |(byte, _)| AddressingMode::ZeroPageX(byte))(input)
 }
 
-fn am_zp_y(input: &[u8]) -> IResult<&[u8], AddressingMode> {
-    let parser = terminated(alt((parse_byte_hex, parse_byte_dec)), tag_no_case(",Y"));
+fn am_zp_y(input: &str) -> Result<AddressingMode> {
+    let parser = terminated(alt((parse_signed_byte_hex, parse_signed_byte_dec)), tag_no_case(",Y"));
     map(parser, |(byte, _)| AddressingMode::ZeroPageY(byte))(input)
 }
 
-fn am_abs_x(input: &[u8]) -> IResult<&[u8], AddressingMode> {
+fn am_abs_x(input: &str) -> Result<AddressingMode> {
     let parser = terminated(alt((parse_word_hex, dec_u16)), tag_no_case(",X"));
     map(parser, AddressingMode::AbsoluteX)(input)
 }
 
-fn am_abs_y(input: &[u8]) -> IResult<&[u8], AddressingMode> {
+fn am_abs_y(input: &str) -> Result<AddressingMode> {
     let parser = terminated(alt((parse_word_hex, dec_u16)), tag_no_case(",Y"));
     map(parser, AddressingMode::AbsoluteY)(input)
 }
 
-fn am_label(input: &[u8]) -> IResult<&[u8], AddressingMode> {
+fn am_label(input: &str) -> Result<AddressingMode> {
     map(
-        take_while1(|c| nom::character::is_alphanumeric(c) || c as char == '_'),
-        |label: &[u8]| AddressingMode::Label(std::str::from_utf8(label).unwrap().to_string()),
+        take_while1(|c: char| c.is_ascii() && nom::character::is_alphanumeric(c as u8) || c == '_'),
+        |label: &str| AddressingMode::Label(label.to_string()),
     )(input)
 }
 
-fn parse_word_hex(input: &[u8]) -> IResult<&[u8], u16> {
+fn parse_word_hex(input: &str) -> Result<u16> {
     preceded(tag("$"), hex_u16)(input)
 }
 
-fn parse_byte_hex(input: &[u8]) -> IResult<&[u8], (u8, Sign)> {
+fn parse_signed_byte_hex(input: &str) -> Result<(u8, Sign)> {
     map(preceded(tag("$"), hex_u8), |val| (val, Sign::Implied))(input)
 }
 
-fn parse_byte_dec(input: &[u8]) -> IResult<&[u8], (u8, Sign)> {
+fn parse_signed_byte_dec(input: &str) -> Result<(u8, Sign)> {
     map(tuple((parse_sign, dec_u8)), |(sign, val)| (val, sign))(input)
 }
 
-fn parse_sign(input: &[u8]) -> IResult<&[u8], Sign> {
+fn parse_sign(input: &str) -> Result<Sign> {
     map(opt(tag("-")), |sign| {
         if sign.is_some() {
             Sign::Negative
@@ -225,7 +273,7 @@ fn parse_sign(input: &[u8]) -> IResult<&[u8], Sign> {
     })(input)
 }
 
-fn hex_u16(input: &[u8]) -> IResult<&[u8], u16> {
+fn hex_u16(input: &str) -> Result<u16> {
     let (i, o) = nom::bytes::complete::is_a(&b"0123456789abcdefABCDEF"[..])(input)?;
     let mut res = 0u16;
 
@@ -237,7 +285,7 @@ fn hex_u16(input: &[u8]) -> IResult<&[u8], u16> {
         parsed = &input[..4];
     }
 
-    for &e in parsed {
+    for e in parsed.iter_elements() {
         let digit = e as char;
         let value = digit.to_digit(16).unwrap_or(0) as u16;
         res = value + (res << 4);
@@ -245,7 +293,7 @@ fn hex_u16(input: &[u8]) -> IResult<&[u8], u16> {
     IResult::Ok((remaining, res))
 }
 
-fn dec_u16(input: &[u8]) -> IResult<&[u8], u16> {
+fn dec_u16(input: &str) -> Result<u16> {
     let (remaining, parsed) = nom::bytes::complete::is_a(&b"0123456789"[..])(input)?;
     // Do not parse more than 5 characters for a u16
     if parsed.len() > 5 {
@@ -255,7 +303,7 @@ fn dec_u16(input: &[u8]) -> IResult<&[u8], u16> {
         )))
     } else {
         let mut res = 0u32;
-        for &e in parsed {
+        for e in parsed.iter_elements() {
             let digit = e as char;
             let value = digit.to_digit(10).unwrap_or(0) as u32;
             res = value + (res * 10);
@@ -273,7 +321,7 @@ fn dec_u16(input: &[u8]) -> IResult<&[u8], u16> {
     }
 }
 
-fn dec_u8(input: &[u8]) -> IResult<&[u8], u8> {
+fn dec_u8(input: &str) -> Result<u8> {
     let (remaining, parsed) = nom::bytes::complete::is_a(&b"0123456789"[..])(input)?;
     // Do not parse more than 3 characters for a u16
     if parsed.len() > 3 {
@@ -283,7 +331,7 @@ fn dec_u8(input: &[u8]) -> IResult<&[u8], u8> {
         )))
     } else {
         let mut res = 0u16;
-        for &e in parsed {
+        for e in parsed.iter_elements() {
             let digit = e as char;
             let value = digit.to_digit(10).unwrap_or(0) as u16;
             res = value + (res * 10);
@@ -299,7 +347,7 @@ fn dec_u8(input: &[u8]) -> IResult<&[u8], u8> {
     }
 }
 
-fn hex_u8(input: &[u8]) -> IResult<&[u8], u8> {
+fn hex_u8(input: &str) -> Result<u8> {
     let (remaining, parsed) = nom::bytes::complete::is_a(&b"0123456789abcdefABCDEF"[..])(input)?;
     // Not valid if exceeds 2 characters
     if parsed.len() > 2 {
@@ -309,7 +357,7 @@ fn hex_u8(input: &[u8]) -> IResult<&[u8], u8> {
         )))
     } else {
         let mut res = 0u8;
-        for &e in parsed {
+        for e in parsed.iter_elements() {
             let digit = e as char;
             let value = digit.to_digit(16).unwrap_or(0) as u8;
             res = value + (res << 4);
