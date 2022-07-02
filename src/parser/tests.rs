@@ -476,8 +476,9 @@ fn parse_direct_bytes_interleved() {
 
 #[test]
 fn parse_direct_bytes_db_alias() {
-    let asm = ".BYTE $4E, $45, $53, $1A";
-    let parsed_bytes = super::parse_lines(&asm);
-    let parsed_db = super::parse_lines(&asm);
+    let asm_byte = ".BYTE $4E, $45, $53, $1A";
+    let asm_db = ".DB $4E, $45, $53, $1A";
+    let parsed_bytes = super::parse_lines(&asm_byte);
+    let parsed_db = super::parse_lines(&asm_db);
     assert_eq!(parsed_bytes, parsed_db);
 }
