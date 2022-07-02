@@ -6,15 +6,15 @@ use nom::bytes::complete::is_not;
 use nom::character::complete::{alphanumeric1, multispace1};
 use nom::combinator::recognize;
 use nom::error::{ErrorKind, VerboseError};
-use nom::{IResult, InputIter};
-use nom::multi::{many1, separated_list1, many0};
+use nom::multi::{many0, many1, separated_list1};
 use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case, take_while1},
-    character::complete::{line_ending, space0, space1, char},
+    character::complete::{char, line_ending, space0, space1},
     combinator::{all_consuming, eof, map, opt, value},
-    sequence::{delimited, preceded, separated_pair, terminated, tuple, pair},
+    sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
 };
+use nom::{IResult, InputIter};
 
 pub type Result<'a, T> = IResult<&'a str, T, VerboseError<&'a str>>;
 
@@ -50,7 +50,10 @@ fn spaced_comma(input: &str) -> Result<&str> {
 }
 
 fn expression_sequence(input: &str) -> Result<Token> {
-    let (rest, bytes) = separated_list1(spaced_comma, alt((parse_signed_byte_hex, parse_signed_byte_dec)))(input)?;
+    let (rest, bytes) = separated_list1(
+        spaced_comma,
+        alt((parse_signed_byte_hex, parse_signed_byte_dec)),
+    )(input)?;
     Ok((rest, Token::ControlCommand(ControlCommand::Byte(bytes))))
 }
 
@@ -61,21 +64,16 @@ fn byte_cmd(input: &str) -> Result<Token> {
 }
 
 fn control_cmd(input: &str) -> Result<Token> {
-    alt((
-        byte_cmd,
-    ))(input)
+    alt((byte_cmd,))(input)
 }
 
 fn label(input: &str) -> Result<Token> {
     let parser = tuple((
         alphanumeric1,
-        tag::<&str, &str, _>(":") // Required type hint
+        tag::<&str, &str, _>(":"), // Required type hint
     ));
 
-    map(
-        parser,
-        |(token, _)| Token::Label(token.to_string()),
-    )(input)
+    map(parser, |(token, _)| Token::Label(token.to_string()))(input)
 }
 
 fn instruction(input: &str) -> Result<Token> {
@@ -166,12 +164,8 @@ fn addressing_mode(input: &str) -> Result<AddressingMode> {
         am_label,
     )))(input)?;
     match operand {
-        Some(operand) => {
-            Ok((rest, operand))
-        }
-        None => {
-            Ok((rest, AddressingMode::Implied))
-        }
+        Some(operand) => Ok((rest, operand)),
+        None => Ok((rest, AddressingMode::Implied)),
     }
 }
 
@@ -208,7 +202,10 @@ fn am_accumulator(input: &str) -> Result<AddressingMode> {
 }
 
 fn am_immediate(input: &str) -> Result<AddressingMode> {
-    let parser = preceded(tag("#"), alt((parse_signed_byte_hex, parse_signed_byte_dec)));
+    let parser = preceded(
+        tag("#"),
+        alt((parse_signed_byte_hex, parse_signed_byte_dec)),
+    );
     map(parser, |(byte, sign)| AddressingMode::Immediate(byte, sign))(input)
 }
 
@@ -225,12 +222,18 @@ fn am_zp_or_relative(input: &str) -> Result<AddressingMode> {
 }
 
 fn am_zp_x(input: &str) -> Result<AddressingMode> {
-    let parser = terminated(alt((parse_signed_byte_hex, parse_signed_byte_dec)), tag_no_case(",X"));
+    let parser = terminated(
+        alt((parse_signed_byte_hex, parse_signed_byte_dec)),
+        tag_no_case(",X"),
+    );
     map(parser, |(byte, _)| AddressingMode::ZeroPageX(byte))(input)
 }
 
 fn am_zp_y(input: &str) -> Result<AddressingMode> {
-    let parser = terminated(alt((parse_signed_byte_hex, parse_signed_byte_dec)), tag_no_case(",Y"));
+    let parser = terminated(
+        alt((parse_signed_byte_hex, parse_signed_byte_dec)),
+        tag_no_case(",Y"),
+    );
     map(parser, |(byte, _)| AddressingMode::ZeroPageY(byte))(input)
 }
 

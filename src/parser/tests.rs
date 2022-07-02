@@ -358,10 +358,7 @@ fn parsing_line_with_error() {
 #[test]
 fn single_label() {
     let parsed = super::parse_lines("label:");
-    assert_eq!(
-        parsed,
-        Ok(("", vec![Token::Label("label".to_string())]))
-    );
+    assert_eq!(parsed, Ok(("", vec![Token::Label("label".to_string())])));
     assert!(parsed.is_ok());
 }
 
@@ -434,7 +431,8 @@ fn parse_direct_bytes_only() {
 
 #[test]
 fn parse_comments() {
-    let parsed_with_comments = super::parse_lines(r#"
+    let parsed_with_comments = super::parse_lines(
+        r#"
         NOP ; comment
         NOP; comment
 
@@ -443,18 +441,21 @@ fn parse_comments() {
 ; comment
         NOP
 ;comment
-    "#);
+    "#,
+    );
     let parsed_without_comments = super::parse_lines("NOP\nNOP\nNOP\nNOP");
     assert_eq!(parsed_with_comments, parsed_without_comments);
 }
 
 #[test]
 fn parse_direct_bytes_interleved() {
-    let parsed = super::parse_lines(r#"
+    let parsed = super::parse_lines(
+        r#"
         NOP
         .BYTE $4E, $45, $53, $1A
         NOP
-    "#);
+    "#,
+    );
     assert_eq!(
         parsed,
         Ok((

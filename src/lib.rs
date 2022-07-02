@@ -5,5 +5,5 @@ mod parser;
 mod tokens;
 
 pub use assembler::assemble;
-pub use assembler::AssembleResult;
 pub use assembler::AssembleError;
+pub use assembler::AssembleResult;

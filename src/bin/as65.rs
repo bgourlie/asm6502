@@ -9,7 +9,7 @@ use asm6502::AssembleError;
 #[clap(author, version, about, long_about = None)]
 struct Args {
     filename: String,
-    output: Option<String>
+    output: Option<String>,
 }
 
 fn main() -> anyhow::Result<()> {

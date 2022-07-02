@@ -19,7 +19,7 @@ pub enum AssembleError<'a> {
     TokenizeError(nom::Err<nom::error::VerboseError<&'a str>>),
 
     #[error("Failed to parse input")]
-    ParseError(String)
+    ParseError(String),
 }
 
 pub type AssembleResult<'a> = Result<(), AssembleError<'a>>;
@@ -49,7 +49,11 @@ pub fn assemble<'a, W: Write>(input: &'a str, output: &mut W) -> AssembleResult<
     }
 }
 
-fn process_tokens<'a, W: Write>(input: &'a str, tokens: Vec<Token>, output: &mut W) -> AssembleResult<'a> {
+fn process_tokens<'a, W: Write>(
+    input: &'a str,
+    tokens: Vec<Token>,
+    output: &mut W,
+) -> AssembleResult<'a> {
     #[derive(Debug)]
     struct Relocation {
         label: String,
@@ -75,15 +79,13 @@ fn process_tokens<'a, W: Write>(input: &'a str, tokens: Vec<Token>, output: &mut
             Token::Label(name) => {
                 label_pos.insert(name, codegen.len());
             }
-            Token::ControlCommand(cmd) => {
-                match cmd {
-                    ControlCommand::Byte(bytes) => {
-                        for (abs, sign) in bytes {
-                            signed(input, abs, sign, &mut codegen)?;
-                        }
+            Token::ControlCommand(cmd) => match cmd {
+                ControlCommand::Byte(bytes) => {
+                    for (abs, sign) in bytes {
+                        signed(input, abs, sign, &mut codegen)?;
                     }
                 }
-            }
+            },
         }
     }
 
@@ -98,7 +100,10 @@ fn process_tokens<'a, W: Write>(input: &'a str, tokens: Vec<Token>, output: &mut
             }
             codegen[relocation.offset] = relative as u8;
         } else {
-            return Err(AssembleError::ParseError(format!("Label \"{}\" is not defined", relocation.label)));
+            return Err(AssembleError::ParseError(format!(
+                "Label \"{}\" is not defined",
+                relocation.label
+            )));
         }
     }
 
@@ -108,7 +113,12 @@ fn process_tokens<'a, W: Write>(input: &'a str, tokens: Vec<Token>, output: &mut
         .map_err(|err| AssembleError::WriteIO(err))
 }
 
-fn process_opcode<'a, 'b>(input: &'a str, mnemonic: Mnemonic, am: AddressingMode, codegen: &'b mut Vec<u8>) -> AssembleResult<'a> {
+fn process_opcode<'a, 'b>(
+    input: &'a str,
+    mnemonic: Mnemonic,
+    am: AddressingMode,
+    codegen: &'b mut Vec<u8>,
+) -> AssembleResult<'a> {
     match mnemonic {
         Mnemonic::Adc => adc(input, am, codegen),
         Mnemonic::And => and(input, am, codegen),
@@ -170,64 +180,108 @@ fn process_opcode<'a, 'b>(input: &'a str, mnemonic: Mnemonic, am: AddressingMode
 }
 
 #[inline]
-fn adc<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn adc<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(input, 0x69, val, sign, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0x65, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0x65, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0x75, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0x6d, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0x7d, addr, output),
         AddressingMode::AbsoluteY(addr) => memory_word(input, 0x79, addr, output),
         AddressingMode::IndexedIndirect(addr) => memory_byte(input, 0x61, addr, output),
         AddressingMode::IndirectIndexed(addr) => memory_byte(input, 0x71, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for ADC: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for ADC: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn and<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn and<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(input, 0x29, val, sign, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0x25, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0x25, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0x35, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0x2d, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0x3d, addr, output),
         AddressingMode::AbsoluteY(addr) => memory_word(input, 0x39, addr, output),
         AddressingMode::IndexedIndirect(addr) => memory_byte(input, 0x21, addr, output),
         AddressingMode::IndirectIndexed(addr) => memory_byte(input, 0x31, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for AND: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for AND: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn asl<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn asl<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Accumulator => byte(input, 0x0a, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0x06, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0x06, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0x16, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0x0e, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0x1e, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for ASL: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for ASL: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn bit<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn bit<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0x24, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0x24, addr, sign, output)
+        }
         AddressingMode::Absolute(addr) => memory_word(input, 0x2c, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for BIT: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for BIT: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn brk<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn brk<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     // BRK is a 1 byte instruction but is followed by a padding byte.
     implied(input, 0x0, am, "BRK", output).and_then(|_| byte(input, 0x0, output))
 }
 
 #[inline]
-fn cmp<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn cmp<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Absolute(addr) => memory_word(input, 0xcd, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0xdd, addr, output),
@@ -235,242 +289,428 @@ fn cmp<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) 
         AddressingMode::Immediate(val, sign) => immediate(input, 0xc9, val, sign, output),
         AddressingMode::IndexedIndirect(addr) => memory_byte(input, 0xc1, addr, output),
         AddressingMode::IndirectIndexed(addr) => memory_byte(input, 0xd1, addr, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0xc5, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0xc5, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0xd5, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for CMP: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for CMP: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn cpx<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn cpx<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(input, 0xe0, val, sign, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0xe4, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0xe4, addr, sign, output)
+        }
         AddressingMode::Absolute(addr) => memory_word(input, 0xec, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for CPX: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for CPX: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn cpy<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn cpy<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Absolute(addr) => memory_word(input, 0xcc, addr, output),
         AddressingMode::Immediate(val, sign) => immediate(input, 0xc0, val, sign, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0xc4, addr, sign, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for CPY: {:?}", am))),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0xc4, addr, sign, output)
+        }
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for CPY: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn dec<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn dec<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Absolute(addr) => memory_word(input, 0xce, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0xde, addr, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0xc6, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0xc6, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0xd6, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for DEC: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for DEC: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn inc<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn inc<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Absolute(addr) => memory_word(input, 0xee, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0xfe, addr, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0xe6, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0xe6, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0xf6, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for INC: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for INC: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn eor<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn eor<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(input, 0x49, val, sign, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0x45, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0x45, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0x55, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0x4d, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0x5d, addr, output),
         AddressingMode::AbsoluteY(addr) => memory_word(input, 0x59, addr, output),
         AddressingMode::IndexedIndirect(addr) => memory_byte(input, 0x41, addr, output),
         AddressingMode::IndirectIndexed(addr) => memory_byte(input, 0x51, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for EOR: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for EOR: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn jmp<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn jmp<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Absolute(addr) => memory_word(input, 0x4c, addr, output),
         AddressingMode::Indirect(addr) => memory_word(input, 0x6c, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for JMP: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for JMP: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn jsr<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn jsr<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Absolute(addr) => memory_word(input, 0x20, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for JSR: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for JSR: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn lda<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn lda<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(input, 0xa9, val, sign, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0xa5, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0xa5, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0xb5, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0xad, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0xbd, addr, output),
         AddressingMode::AbsoluteY(addr) => memory_word(input, 0xb9, addr, output),
         AddressingMode::IndexedIndirect(addr) => memory_byte(input, 0xa1, addr, output),
         AddressingMode::IndirectIndexed(addr) => memory_byte(input, 0xb1, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for LDA: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for LDA: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn ldx<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn ldx<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(input, 0xa2, val, sign, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0xa6, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0xa6, addr, sign, output)
+        }
         AddressingMode::ZeroPageY(addr) => memory_byte(input, 0xb6, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0xae, addr, output),
         AddressingMode::AbsoluteY(addr) => memory_word(input, 0xbe, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for LDX: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for LDX: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn ldy<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn ldy<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(input, 0xa0, val, sign, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0xa4, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0xa4, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0xb4, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0xac, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0xbc, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for LDY: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for LDY: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn lsr<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn lsr<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Accumulator => byte(input, 0x4a, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0x46, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0x46, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0x56, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0x4e, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0x5e, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for LSR: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for LSR: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn ora<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn ora<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(input, 0x09, val, sign, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0x05, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0x05, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0x15, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0x0d, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0x1d, addr, output),
         AddressingMode::AbsoluteY(addr) => memory_word(input, 0x19, addr, output),
         AddressingMode::IndexedIndirect(addr) => memory_byte(input, 0x01, addr, output),
         AddressingMode::IndirectIndexed(addr) => memory_byte(input, 0x11, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for ORA: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for ORA: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn rol<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn rol<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Accumulator => byte(input, 0x2a, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0x26, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0x26, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0x36, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0x2e, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0x3e, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for ROL: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for ROL: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn ror<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn ror<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Accumulator => byte(input, 0x6a, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0x66, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0x66, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0x76, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0x6e, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0x7e, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for ROR: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for ROR: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn sbc<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn sbc<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
         AddressingMode::Immediate(val, sign) => immediate(input, 0xe9, val, sign, output),
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0xe5, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0xe5, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0xf5, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0xed, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0xfd, addr, output),
         AddressingMode::AbsoluteY(addr) => memory_word(input, 0xf9, addr, output),
         AddressingMode::IndexedIndirect(addr) => memory_byte(input, 0xe1, addr, output),
         AddressingMode::IndirectIndexed(addr) => memory_byte(input, 0xf1, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for SBC: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for SBC: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn sta<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn sta<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0x85, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0x85, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0x95, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0x8d, addr, output),
         AddressingMode::AbsoluteX(addr) => memory_word(input, 0x9d, addr, output),
         AddressingMode::AbsoluteY(addr) => memory_word(input, 0x99, addr, output),
         AddressingMode::IndexedIndirect(addr) => memory_byte(input, 0x81, addr, output),
         AddressingMode::IndirectIndexed(addr) => memory_byte(input, 0x91, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for STA: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for STA: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn stx<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn stx<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0x86, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0x86, addr, sign, output)
+        }
         AddressingMode::ZeroPageY(addr) => memory_byte(input, 0x96, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0x8e, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for STX: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for STX: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn sty<'a, 'b, T: Write>(input: &'a str, am: AddressingMode, output: &'b mut T) -> AssembleResult<'a> {
+fn sty<'a, 'b, T: Write>(
+    input: &'a str,
+    am: AddressingMode,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match am {
-        AddressingMode::ZeroPageOrRelative(addr, sign) => zero_page(input, 0x84, addr, sign, output),
+        AddressingMode::ZeroPageOrRelative(addr, sign) => {
+            zero_page(input, 0x84, addr, sign, output)
+        }
         AddressingMode::ZeroPageX(addr) => memory_byte(input, 0x94, addr, output),
         AddressingMode::Absolute(addr) => memory_word(input, 0x8c, addr, output),
-        _ => Err(AssembleError::ParseError(format!("Unexpected operand encountered for STY: {:?}", am))),
+        _ => Err(AssembleError::ParseError(format!(
+            "Unexpected operand encountered for STY: {:?}",
+            am
+        ))),
     }
 }
 
 #[inline]
-fn immediate<'a, T: Write>(input: &'a str, opcode: u8, val: u8, sign: Sign, output: &mut T) -> AssembleResult<'a> {
+fn immediate<'a, T: Write>(
+    input: &'a str,
+    opcode: u8,
+    val: u8,
+    sign: Sign,
+    output: &mut T,
+) -> AssembleResult<'a> {
     byte(input, opcode, output).and_then(|_| signed(input, val, sign, output))
 }
 
 #[inline]
-fn zero_page<'a, 'b, T: Write>(input: &'a str, opcode: u8, addr: u8, sign: Sign, output: &'b mut T) -> AssembleResult<'a> {
-    err_if_negative(input, sign).and_then(|_| byte(input, opcode, output).and_then(|_| byte(input, addr, output)))
+fn zero_page<'a, 'b, T: Write>(
+    input: &'a str,
+    opcode: u8,
+    addr: u8,
+    sign: Sign,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
+    err_if_negative(input, sign)
+        .and_then(|_| byte(input, opcode, output).and_then(|_| byte(input, addr, output)))
 }
 
 #[inline]
-fn memory_word<'a, 'b, T: Write>(input: &'a str, opcode: u8, addr: u16, output: &'b mut T) -> AssembleResult<'a> {
+fn memory_word<'a, 'b, T: Write>(
+    input: &'a str,
+    opcode: u8,
+    addr: u16,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     byte(input, opcode, output).and_then(|_| word(input, addr, output))
 }
 
 #[inline]
-fn memory_byte<'a, 'b, T: Write>(input: &'a str, opcode: u8, addr: u8, output: &'b mut T) -> AssembleResult<'a> {
+fn memory_byte<'a, 'b, T: Write>(
+    input: &'a str,
+    opcode: u8,
+    addr: u8,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     byte(input, opcode, output).and_then(|_| byte(input, addr, output))
 }
 
@@ -522,7 +762,12 @@ fn implied<'a, 'b, T: Write>(
 }
 
 #[inline]
-fn signed<'a, 'b, T: Write>(input: &'a str, val: u8, sign: Sign, output: &'b mut T) -> AssembleResult<'a> {
+fn signed<'a, 'b, T: Write>(
+    input: &'a str,
+    val: u8,
+    sign: Sign,
+    output: &'b mut T,
+) -> AssembleResult<'a> {
     match sign {
         Sign::Implied => byte(input, val, output),
         Sign::Positive => {
@@ -564,7 +809,9 @@ fn word<'a, 'b, T: Write>(_input: &'a str, val: u16, output: &'b mut T) -> Assem
 #[inline]
 fn err_if_negative<'a>(_input: &'a str, sign: Sign) -> AssembleResult<'a> {
     if sign == Sign::Negative {
-        Err(AssembleError::ParseError("Unexpected signed operand".to_owned()))
+        Err(AssembleError::ParseError(
+            "Unexpected signed operand".to_owned(),
+        ))
     } else {
         Ok(())
     }
