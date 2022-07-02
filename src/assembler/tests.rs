@@ -4,7 +4,7 @@ macro_rules! assert_assemble_err {
     ( $ asm : expr ) => {
         let mut buf = Vec::<u8>::new();
         let asm = $asm;
-        match assemble(asm.as_bytes(), &mut buf) {
+        match assemble(asm, &mut buf) {
             Ok(_) => panic!("Expected error"),
             _ => (),
         }
@@ -15,7 +15,7 @@ macro_rules! assert_assemble {
     ( $ asm : expr , $ expected : expr ) => {{
         let asm = $asm;
         let mut buf = Vec::<u8>::new();
-        match assemble(asm.as_bytes(), &mut buf) {
+        match assemble(asm, &mut buf) {
             Err(msg) => panic!("Failed to assemble '{}': {}", asm, msg),
             _ => {
                 let expected = $expected;
@@ -2370,7 +2370,7 @@ fn sty() {
 
 #[test]
 fn branch_with_forward_label() {
-    let asm = "BVC LABEL\nNOP\nNOP\nLABEL:\nNOP".as_bytes();
+    let asm = "BVC LABEL\nNOP\nNOP\nLABEL:\nNOP";
     let mut buf = Vec::<u8>::new();
     let asm = assemble(asm, &mut buf);
     assert!(asm.is_ok());
@@ -2379,7 +2379,7 @@ fn branch_with_forward_label() {
 
 #[test]
 fn branch_with_backward_label() {
-    let asm = "LABEL:\nNOP\nNOP\nBVC LABEL\nNOP".as_bytes();
+    let asm = "LABEL:\nNOP\nNOP\nBVC LABEL\nNOP";
     let mut buf = Vec::<u8>::new();
     let asm = assemble(asm, &mut buf);
     assert!(asm.is_ok());
@@ -2388,8 +2388,30 @@ fn branch_with_backward_label() {
 
 #[test]
 fn unknown_label() {
-    let asm = "LABEL:\nNOP\nBVC LABEL_new\nNOP".as_bytes();
+    let asm = "LABEL:\nNOP\nBVC LABEL_new\nNOP";
     let mut buf = Vec::<u8>::new();
     let asm = assemble(asm, &mut buf);
     assert!(asm.is_err());
+}
+
+#[test]
+fn assemble_direct_bytes_only() {
+    let asm = ".BYTE $4E, $45, $53, $1A";
+    let mut buf = Vec::<u8>::new();
+    let asm = assemble(asm, &mut buf);
+    assert!(asm.is_ok());
+    assert_eq!(buf, &['N' as u8, 'E' as u8, 'S' as u8, 0x1a]);
+}
+
+#[test]
+fn assemble_direct_bytes_interleved() {
+    let asm = r#"
+        NOP
+        .BYTE $4E, $45, $53, $1A
+        NOP
+    "#;
+    let mut buf = Vec::<u8>::new();
+    let asm = assemble(asm, &mut buf);
+    assert!(asm.is_ok());
+    assert_eq!(buf, &[0xEA, 'N' as u8, 'E' as u8, 'S' as u8, 0x1A, 0xEA]);
 }

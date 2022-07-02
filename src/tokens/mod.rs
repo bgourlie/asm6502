@@ -81,12 +81,17 @@ pub enum AddressingMode {
     Accumulator,
     Label(String),
 }
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ControlCommand {
+    Byte(Vec<(u8, Sign)>),
+}
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct OpCode(pub Mnemonic, pub AddressingMode);
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Token {
+    ControlCommand(ControlCommand),
     OpCode(OpCode),
     Label(String),
 }

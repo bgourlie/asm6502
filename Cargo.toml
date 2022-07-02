@@ -14,3 +14,14 @@ travis-ci = { repository = "bgourlie/asm6502", branch = "master" }
 
 [dependencies]
 nom = "7.0"
+thiserror = "1"
+clap = { version = "3.2.6", features = ["derive", "cargo"], optional = true }
+anyhow = { version = "1.0.58", optional = true }
+
+[features]
+default=["assembler"]
+assembler=["clap", "anyhow"]
+
+[[bin]]
+name="as65"
+required-features=["assembler"]
