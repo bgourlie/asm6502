@@ -41,18 +41,21 @@ pub type AssembleResult<'a> = Result<(), AssembleError<'a>>;
 /// file.
 pub fn assemble<'a, W: Write>(input: &'a str, output: &mut W) -> AssembleResult<'a> {
     match parse_lines(input) {
-        IResult::Ok((_, tokens)) => process_tokens(input, tokens, output),
+        IResult::Ok((_, tokens)) => {
+            let mut codegen = Vec::<u8>::new();
+            process_tokens(tokens, &mut codegen).map_err(|err| AssembleError::ParseError(err))?;
+            output
+                .write(&codegen)
+                .map(|_| ())
+                .map_err(|err| AssembleError::WriteIO(err))
+        }
         IResult::Err(err) => Err(AssembleError::TokenizeError(err)),
     }
 }
 
 type ParsingResult = Result<(), String>;
 
-fn process_tokens<'a, W: Write>(
-    _input: &'a str,
-    tokens: Vec<Token>,
-    output: &mut W,
-) -> AssembleResult<'a> {
+fn process_tokens(tokens: Vec<Token>, codegen: &mut Vec<u8>) -> ParsingResult {
     #[derive(Debug)]
     struct Relocation {
         label: String,
@@ -62,7 +65,6 @@ fn process_tokens<'a, W: Write>(
     // Contains list of places there we should insert concrete address instead of label.
     let mut relocation_table: Vec<Relocation> = vec![];
     let mut label_pos: HashMap<String, usize> = HashMap::new();
-    let mut codegen = Vec::<u8>::new();
 
     for token in tokens {
         match token {
@@ -73,10 +75,7 @@ fn process_tokens<'a, W: Write>(
                         offset: codegen.len() + 1,
                     });
                 };
-                let res = process_opcode(mnemonic, am, &mut codegen);
-                if res.is_err() {
-                    return Err(AssembleError::ParseError(res.err().unwrap()));
-                }
+                process_opcode(mnemonic, am, codegen)?;
             }
             Token::Label(name) => {
                 label_pos.insert(name, codegen.len());
@@ -84,10 +83,7 @@ fn process_tokens<'a, W: Write>(
             Token::ControlCommand(cmd) => match cmd {
                 ControlCommand::Byte(bytes) => {
                     for (abs, sign) in bytes {
-                        let res = signed(abs, sign, &mut codegen);
-                        if res.is_err() {
-                            return Err(AssembleError::ParseError(res.err().unwrap()));
-                        }
+                        signed(abs, sign, codegen)?;
                     }
                 }
             },
@@ -98,24 +94,18 @@ fn process_tokens<'a, W: Write>(
         if let Some(offset) = label_pos.get(&relocation.label) {
             let relative = *offset as i64 - relocation.offset as i64 - 1;
             if relative > 127 || relative < -128 {
-                return Err(AssembleError::ParseError(format!(
+                return Err(format!(
                     "Label \"{}\" is too far from definition",
                     relocation.label
-                )));
+                ));
             }
             codegen[relocation.offset] = relative as u8;
         } else {
-            return Err(AssembleError::ParseError(format!(
-                "Label \"{}\" is not defined",
-                relocation.label
-            )));
+            return Err(format!("Label \"{}\" is not defined", relocation.label));
         }
     }
 
-    output
-        .write(&codegen)
-        .map(|_| ())
-        .map_err(|err| AssembleError::WriteIO(err))
+    Ok(())
 }
 
 fn process_opcode(mnemonic: Mnemonic, am: AddressingMode, codegen: &mut Vec<u8>) -> ParsingResult {
